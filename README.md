@@ -27,4 +27,4 @@ stripped from everything that is not related to image transitions.
 Other dependencies are used as they can be found on the central maven repository.
 
 ## Compile
-mvn compile will do.
+mvn compile will do. You can find the jar file in the target folder.
