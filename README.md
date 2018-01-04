@@ -28,3 +28,6 @@ Other dependencies are used as they can be found on the central maven repository
 
 ## Compile
 mvn compile will do. You can find the jar file in the target folder.
+
+## License
+See [here](https://github.com/jbobnar/ImageViewer/blob/master/ImageViewer/lib/LICENSE.info).
