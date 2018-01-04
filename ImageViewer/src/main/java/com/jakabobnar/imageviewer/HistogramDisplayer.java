@@ -38,35 +38,6 @@ import com.jakabobnar.imageviewer.util.Utilities;
 public class HistogramDisplayer extends OverlayDialog {
 
     private static final long serialVersionUID = 5173426152251229557L;
-    private static HistogramDisplayer INSTANCE;
-
-    /**
-     * Returns the singleton instance of this displayer. This is a convenience method only, and should only be used
-     * after {@link HistogramDisplayer#getInstance(JFrame)} has already been invoked.
-     *
-     * @return the singleton instance
-     */
-    public static HistogramDisplayer getInstance() {
-        return getInstance(ViewerFrame.instance);
-    }
-
-    /**
-     * Returns the singleton instance of histogram displayer.
-     * <p>
-     * In theory this accessor method should be synchronized to prevent instantiating two instances of the displayer.
-     * However, the displayer is instantiated immediately when the application is started, before any other method could
-     * invoke this method.
-     * </p>
-     *
-     * @param frame the parent frame
-     * @return the displayer
-     */
-    public static HistogramDisplayer getInstance(JFrame frame) {
-        if (INSTANCE == null) {
-            INSTANCE = new HistogramDisplayer(frame);
-        }
-        return INSTANCE;
-    }
 
     private static class HistogramCanvas extends JPanel {
         private static final Map<RenderingHints.Key, Object> HINTS = new HashMap<>();
@@ -225,7 +196,7 @@ public class HistogramDisplayer extends OverlayDialog {
      *
      * @param frame the parent frame (cannot be null)
      */
-    private HistogramDisplayer(JFrame frame) {
+    public HistogramDisplayer(JFrame frame) {
         super(frame,300,150);
         setUp();
     }

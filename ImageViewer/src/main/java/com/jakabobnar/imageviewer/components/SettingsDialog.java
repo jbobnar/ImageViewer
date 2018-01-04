@@ -3,8 +3,8 @@
  */
 package com.jakabobnar.imageviewer.components;
 
-import static com.jakabobnar.imageviewer.util.Utilities.itemListener;
 import static com.jakabobnar.imageviewer.util.Utilities.gbc;
+import static com.jakabobnar.imageviewer.util.Utilities.itemListener;
 import static com.jakabobnar.imageviewer.util.Utilities.registerKeyStroke;
 import static com.jakabobnar.imageviewer.util.Utilities.setFixedSize;
 import static java.awt.GridBagConstraints.BOTH;
@@ -58,8 +58,6 @@ import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 
 import com.jakabobnar.colorprofile.ColorProfileManager;
-import com.jakabobnar.imageviewer.EXIFDisplayer;
-import com.jakabobnar.imageviewer.HistogramDisplayer;
 import com.jakabobnar.imageviewer.Transition;
 import com.jakabobnar.imageviewer.ViewerFrame;
 import com.jakabobnar.imageviewer.image.Sorting;
@@ -196,6 +194,7 @@ public class SettingsDialog extends JDialog {
 
     private Settings settings;
     private float previousOpacity;
+    private final ViewerFrame viewerFrame;
 
     /**
      * Constructs a new settings dialog.
@@ -204,6 +203,7 @@ public class SettingsDialog extends JDialog {
      */
     public SettingsDialog(ViewerFrame frame) {
         super(frame);
+        this.viewerFrame = frame;
         setTitle("Settings");
         setType(Type.NORMAL);
         initialize();
@@ -217,8 +217,8 @@ public class SettingsDialog extends JDialog {
 
     private void cancel() {
         settings = null;
-        EXIFDisplayer.getInstance().setRegularOpacity(previousOpacity);
-        HistogramDisplayer.getInstance().setRegularOpacity(previousOpacity);
+        viewerFrame.getExifDisplayer().setRegularOpacity(previousOpacity);
+        viewerFrame.getHistogramDisplayer().setRegularOpacity(previousOpacity);
         dispose();
     }
 
@@ -229,7 +229,7 @@ public class SettingsDialog extends JDialog {
      * @return the new settings if confirmed, or empty if cancelled
      */
     public Optional<Settings> open() {
-        previousOpacity = EXIFDisplayer.getInstance().getRegularOpacity();
+        previousOpacity = viewerFrame.getExifDisplayer().getRegularOpacity();
         setVisible(true);
         return Optional.ofNullable(settings);
     }
@@ -470,8 +470,8 @@ public class SettingsDialog extends JDialog {
         String opacityHelp = "Set the opacity of the overlay information dialogs (EXIF, histogram).";
         opacitySlider.addChangeListener(e -> {
             settings.overlayOpacity = opacitySlider.getValue();
-            EXIFDisplayer.getInstance().setRegularOpacity(settings.overlayOpacity / 100f);
-            HistogramDisplayer.getInstance().setRegularOpacity(settings.overlayOpacity / 100f);
+            viewerFrame.getExifDisplayer().setRegularOpacity(settings.overlayOpacity / 100f);
+            viewerFrame.getHistogramDisplayer().setRegularOpacity(settings.overlayOpacity / 100f);
         });
 
         JPanel colorPanel = new JPanel(new GridBagLayout());

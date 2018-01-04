@@ -7,6 +7,7 @@ import static com.jakabobnar.imageviewer.util.Utilities.registerKeyStroke;
 import static javax.swing.KeyStroke.getKeyStroke;
 
 import java.awt.AWTException;
+import java.awt.DisplayMode;
 import java.awt.Frame;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
@@ -55,8 +56,8 @@ import net.sf.tinylaf.TinyLookAndFeel;
 public class ViewerFrame extends JFrame {
 
     private static final long serialVersionUID = 1L;
-    public static ViewerFrame instance;
 
+    @SuppressWarnings("unused")
     public static void main(String[] args) {
         ImageIO.setUseCache(false); // This speeds up the loading of images
         Logger.getLogger("").setLevel(Level.OFF);
@@ -74,7 +75,7 @@ public class ViewerFrame extends JFrame {
             }
             File f = args.length > 0 ? new File(args[0]) : null;
             Toolkit.getDefaultToolkit().setDynamicLayout(false);
-            instance = new ViewerFrame(f);
+            new ViewerFrame(f);
         });
     }
 
@@ -82,6 +83,8 @@ public class ViewerFrame extends JFrame {
     private Viewer viewer;
     private File file;
     private Settings settings;
+    private EXIFDisplayer exifDisplayer;
+    private HistogramDisplayer histogramDisplayer;
 
     /**
      * Constructs a new frame.
@@ -102,16 +105,15 @@ public class ViewerFrame extends JFrame {
                 .map(s -> new ImageIcon(getClass().getClassLoader().getResource(s)).getImage())
                 .collect(Collectors.toList()));
         setSize(1000,600);
-        // Instantiate the displayers, abusing the singleton pattern
-        EXIFDisplayer.getInstance(this);
-        HistogramDisplayer.getInstance(this);
+        exifDisplayer = new EXIFDisplayer(this);
+        histogramDisplayer = new HistogramDisplayer(this);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         settings = new Settings();
         // If system color profile option is selected, load the profile
         if (settings.systemColorProfile) {
             settings.colorProfile = ColorProfileManager.getColorProfileForComponent(ViewerFrame.this);
         }
-        viewer = new Viewer(file);
+        viewer = new Viewer(file,this);
         viewer.addRecentFilesSelectionListener(f -> {
             settings.addRecentFile(f);
             viewer.updateRecentFiles(settings.getRecentFiles());
@@ -183,10 +185,33 @@ public class ViewerFrame extends JFrame {
         Runtime.getRuntime().addShutdownHook(saveSettings);
     }
 
+    /*
+     * (non-Javadoc)
+     *
+     * @see java.awt.Window#dispose()
+     */
     @Override
     public void dispose() {
         viewer.dispose();
         super.dispose();
+    }
+
+    /**
+     * Return the exif displayer attached to this frame.
+     *
+     * @return the exif displayer
+     */
+    public EXIFDisplayer getExifDisplayer() {
+        return exifDisplayer;
+    }
+
+    /**
+     * Return the histogram displayer attached to this frame.
+     *
+     * @return the histogram displayer
+     */
+    public HistogramDisplayer getHistogramDisplayer() {
+        return histogramDisplayer;
     }
 
     /**
@@ -196,13 +221,13 @@ public class ViewerFrame extends JFrame {
      * @param applyBounds true if the main frame bounds should be applied or false otherwise
      */
     private void applyDialogSettings(Settings newSettings, boolean applyBounds) {
-        HistogramDisplayer.getInstance().setShowChannels(newSettings.showChannels);
-        HistogramDisplayer.getInstance().setShowLuminosity(newSettings.showLuminosity);
-        HistogramDisplayer.getInstance().setShowRGB(newSettings.showRGB);
-        HistogramDisplayer.getInstance().setOverlayChannels(newSettings.overlayChannels);
-        HistogramDisplayer.getInstance().setOverlayCharts(newSettings.overlayCharts);
-        EXIFDisplayer.getInstance().setRegularOpacity(newSettings.overlayOpacity / 100f);
-        HistogramDisplayer.getInstance().setRegularOpacity(newSettings.overlayOpacity / 100f);
+        histogramDisplayer.setShowChannels(newSettings.showChannels);
+        histogramDisplayer.setShowLuminosity(newSettings.showLuminosity);
+        histogramDisplayer.setShowRGB(newSettings.showRGB);
+        histogramDisplayer.setOverlayChannels(newSettings.overlayChannels);
+        histogramDisplayer.setOverlayCharts(newSettings.overlayCharts);
+        histogramDisplayer.setRegularOpacity(newSettings.overlayOpacity / 100f);
+        exifDisplayer.setRegularOpacity(newSettings.overlayOpacity / 100f);
         if (applyBounds) {
             viewer.setShowHistogram(newSettings.histogramVisible);
             viewer.setShowEXIFData(newSettings.exifVisible);
@@ -220,12 +245,12 @@ public class ViewerFrame extends JFrame {
                         }
                         if (newSettings.histogramLocation != null) {
                             if (gc.getBounds().contains(newSettings.histogramLocation)) {
-                                HistogramDisplayer.getInstance().setLocation(newSettings.histogramLocation);
+                                histogramDisplayer.setLocation(newSettings.histogramLocation);
                             }
                         }
                         if (newSettings.exifLocation != null) {
                             if (gc.getBounds().contains(newSettings.exifLocation)) {
-                                EXIFDisplayer.getInstance().setLocation(newSettings.exifLocation);
+                                exifDisplayer.setLocation(newSettings.exifLocation);
                             }
                         }
                     }
@@ -250,10 +275,10 @@ public class ViewerFrame extends JFrame {
         this.file = viewer.getOpenFile();
         settings.lastFile = this.file == null ? null : this.file.getAbsolutePath();
         settings.frameBounds = lastBounds;
-        settings.histogramVisible = HistogramDisplayer.getInstance().isShowing();
-        settings.exifVisible = EXIFDisplayer.getInstance().isShowing();
-        settings.histogramLocation = HistogramDisplayer.getInstance().getLocation();
-        settings.exifLocation = EXIFDisplayer.getInstance().getLocation();
+        settings.histogramVisible = histogramDisplayer.isShowing();
+        settings.exifVisible = exifDisplayer.isShowing();
+        settings.histogramLocation = histogramDisplayer.getLocation();
+        settings.exifLocation = exifDisplayer.getLocation();
         settings.windowState = getExtendedState();
         settings.toolbarAutoHide = viewer.isToolbarAutoHide();
         settings.showToolbar = viewer.isShowToolbar();
@@ -294,8 +319,8 @@ public class ViewerFrame extends JFrame {
     private JFXPanel panel;
 
     /**
-     * Open the native file chooser and load the file that is selected. The Java FX file chooser is used as it is
-     * the only true native file chooser in the java world.
+     * Open the native file chooser and load the file that is selected. The Java FX file chooser is used as it is the
+     * only true native file chooser in the java world.
      */
     void selectFile() {
         if (panel == null) {
@@ -366,39 +391,59 @@ public class ViewerFrame extends JFrame {
      * If the application is running in full screen, switch it to window mode.
      */
     private void toggleFullScreen() {
-        boolean histo = HistogramDisplayer.getInstance().isShowing();
-        boolean exif = EXIFDisplayer.getInstance().isShowing();
-        HistogramDisplayer.getInstance().setShowing(false);
-        EXIFDisplayer.getInstance().setShowing(false);
+        boolean histo = histogramDisplayer.isShowing();
+        boolean exif = exifDisplayer.isShowing();
+        histogramDisplayer.setShowing(false);
+        exifDisplayer.setShowing(false);
         if (isUndecorated()) {
             // normal window mode
-            removeNotify();
+            // removeNotify();
+            // setUndecorated(false);
+            // if (lastBounds != null) {
+            // setBounds(lastBounds);
+            // }
+            getGraphicsConfiguration().getDevice().setFullScreenWindow(null);
+            super.dispose();
             setUndecorated(false);
             if (lastBounds != null) {
                 setBounds(lastBounds);
             }
-            addNotify();
+            setVisible(true);
         } else {
             // full screen mode
             lastBounds = getBounds();
-            removeNotify();
+            // removeNotify();
+            // setUndecorated(true);
+            // Rectangle r = ViewerFrame.this.getGraphicsConfiguration().getBounds();
+            // setSize(r.width,r.height);
+            // setLocation(r.x,r.y);
+            super.dispose();
             setUndecorated(true);
-            Rectangle r = ViewerFrame.this.getGraphicsConfiguration().getBounds();
-            setSize(r.width,r.height);
-            setLocation(r.x,r.y);
+
+            GraphicsDevice device = getGraphicsConfiguration().getDevice();
+            device.setFullScreenWindow(this);
+
+            if (device.isDisplayChangeSupported()) {
+                Rectangle r = device.getDefaultConfiguration().getBounds();
+                DisplayMode currentMode = device.getDisplayMode();
+                DisplayMode newMode = new DisplayMode(r.width,r.height,currentMode.getBitDepth(),
+                        currentMode.getRefreshRate());
+                device.setDisplayMode(newMode);
+            }
         }
-        addNotify();
+        // addNotify();
         toFront();
         // Delay scaling
         SwingUtilities.invokeLater(() -> viewer.scaleImages());
-        HistogramDisplayer.getInstance().setShowing(histo);
-        EXIFDisplayer.getInstance().setShowing(exif);
+        histogramDisplayer.setShowing(histo);
+        exifDisplayer.setShowing(exif);
         setState(Frame.ICONIFIED);
         setState(Frame.NORMAL);
     }
 
     /**
      * Register global key actions on the provided viewer.
+     *
      * @param comp the component to act on when specific actions occur
      */
     @SuppressWarnings("unused")

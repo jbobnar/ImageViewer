@@ -153,6 +153,9 @@ public class ImageUtil {
             w = width;
             h = (int) (width / ratio);
         }
+        if (w <= 0 || h <= 0) {
+            return image;
+        }
         BufferedImage bi = null;
         if (image.getWidth() == width && image.getHeight() == height) {
             // the image is already the proper size

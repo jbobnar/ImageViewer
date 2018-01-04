@@ -48,6 +48,8 @@ import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
 import com.jakabobnar.colorprofile.ColorProfileManager;
+import com.jakabobnar.imageviewer.components.AboutDialog;
+import com.jakabobnar.imageviewer.components.HelpDialog;
 import com.jakabobnar.imageviewer.image.EXIFData;
 import com.jakabobnar.imageviewer.image.EXIFImage;
 import com.jakabobnar.imageviewer.image.Histogram;
@@ -151,6 +153,7 @@ public class Viewer extends JPanel {
     private boolean showToolbar = true;
     private Color backgroundColor = Color.BLACK;
     private final List<Consumer<File>> recentFilesListeners = new CopyOnWriteArrayList<>();
+    private final ViewerFrame viewerFrame;
 
     private class CanvasEventAdapter extends AbstractEventAdapter {
 
@@ -262,27 +265,65 @@ public class Viewer extends JPanel {
 
     /**
      * Constructs a new viewer, with default settings.
+     *
+     * @param parent the parent frame that this viewer belongs to
      */
-    public Viewer() {
-        this(null);
+    public Viewer(ViewerFrame parent) {
+        this(null,parent);
     }
 
     /**
      * Constructs a new viewer.
      *
      * @param file the file which is initially displayed in the viewer and all its siblings loaded
+     * @param parent the parent frame that this viewer belongs to
      */
-    public Viewer(File file) {
+    public Viewer(File file, ViewerFrame frame) {
         super(new GridBagLayout());
+        this.viewerFrame = frame;
         imageFiles = new File[BUFFER_SIZE];
         originalImages = new BufferedImage[BUFFER_SIZE];
         images = new BufferedImage[BUFFER_SIZE];
         scaledImages = new BufferedImage[BUFFER_SIZE];
         exif = new EXIFData[BUFFER_SIZE];
         openFileOrFolder(file);
-        toolbar = new Toolbar(this);
-        toolbar.addRecentFileSelectionListener(this::openFileOrFolder);
-        toolbar.addRecentFileSelectionListener(f -> recentFilesListeners.forEach(c -> c.accept(f)));
+        toolbar = new Toolbar();
+        toolbar.addToolbarListener(new ToolbarListener() {
+            @Override
+            public void recentFileSelected(File file) {
+                openFileOrFolder(file);
+                recentFilesListeners.forEach(c -> c.accept(file));
+            }
+
+            @Override
+            public void openSettings() {
+                viewerFrame.openSettings();
+            }
+
+            @Override
+            public void openFile() {
+                viewerFrame.selectFile();
+            }
+
+            @Override
+            @SuppressWarnings("unused")
+            public void help() {
+                new HelpDialog(viewerFrame);
+                resetZoomAndDrawing();
+            }
+
+            @Override
+            public void advanceImage(boolean forward) {
+                Viewer.this.advanceImage(forward,false);
+            }
+
+            @Override
+            @SuppressWarnings("unused")
+            public void about() {
+                new AboutDialog(viewerFrame);
+                resetZoomAndDrawing();
+            }
+        });
         canvas = new ImageCanvas(toolbar);
         add(toolbar,gbc(0,1,1,1,1,0,GridBagConstraints.NORTH,GridBagConstraints.HORIZONTAL,0));
         add(canvas,gbc(0,1,1,1,1,1,GridBagConstraints.CENTER,GridBagConstraints.BOTH,0));
@@ -295,8 +336,8 @@ public class Viewer extends JPanel {
         canvas.addKeyListener(eventAdapter);
         canvas.addHierarchyListener(eventAdapter);
         registerKeyStrokes();
-        HistogramDisplayer.getInstance().setMouseEventReceiver(eventAdapter);
-        EXIFDisplayer.getInstance().setMouseEventReceiver(eventAdapter);
+        viewerFrame.getHistogramDisplayer().setMouseEventReceiver(eventAdapter);
+        viewerFrame.getExifDisplayer().setMouseEventReceiver(eventAdapter);
         Thread th = new Thread(() -> dispose());
         th.setDaemon(false);
         Runtime.getRuntime().addShutdownHook(th);
@@ -522,10 +563,10 @@ public class Viewer extends JPanel {
                 synchronized (mutex) {
                     exif = this.loadedEXIF;
                 }
-                EXIFDisplayer.getInstance().setData(exif);
+                viewerFrame.getExifDisplayer().setData(exif);
             });
         }
-        EXIFDisplayer.getInstance().setShowing(show);
+        viewerFrame.getExifDisplayer().setShowing(show);
     }
 
     /**
@@ -553,10 +594,10 @@ public class Viewer extends JPanel {
                         loadedHistogram = histogram;
                     }
                 }
-                HistogramDisplayer.getInstance().setHistogram(histogram);
+                viewerFrame.getHistogramDisplayer().setHistogram(histogram);
             });
         }
-        HistogramDisplayer.getInstance().setShowing(show);
+        viewerFrame.getHistogramDisplayer().setShowing(show);
     }
 
     /**
@@ -1958,7 +1999,7 @@ public class Viewer extends JPanel {
             theOriginalNonProfiledImage = original;
         }
         if (showEXIFData) {
-            EXIFDisplayer.getInstance().setData(exif);
+            viewerFrame.getExifDisplayer().setData(exif);
         }
         if (showHistogram) {
             if (hist == null || hist.getFile() == null
@@ -1968,7 +2009,7 @@ public class Viewer extends JPanel {
                     loadedHistogram = hist;
                 }
             }
-            HistogramDisplayer.getInstance().setHistogram(hist);
+            viewerFrame.getHistogramDisplayer().setHistogram(hist);
         }
         SwingUtilities.invokeLater(() -> {
             toolbar.setImageInfo(file.getAbsolutePath(),currentFileIndex,numFiles);

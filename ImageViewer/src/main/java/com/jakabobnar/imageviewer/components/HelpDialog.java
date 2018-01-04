@@ -65,11 +65,11 @@ public class HelpDialog extends JDialog {
         panel.add(new JLabel("CTRL + H"),labelGBC(y));
         panel.add(new HelpArea("Show this help dialog"),helpGBC(y));
         panel.add(new JLabel("I"),labelGBC(++y));
-        panel.add(new HelpArea("Show / hide current image EXIF information"),helpGBC(y));
+        panel.add(new HelpArea("Show / hide current image meta-information (EXIF)"),helpGBC(y));
         panel.add(new JLabel("H"),labelGBC(++y));
         panel.add(new HelpArea("Show / hide current image histogram"),helpGBC(y));
         panel.add(new JLabel("P"),labelGBC(++y));
-        panel.add(new HelpArea("Show program options dialog"),helpGBC(y));
+        panel.add(new HelpArea("Show program preferences dialog"),helpGBC(y));
         panel.add(new JLabel("O"),labelGBC(++y));
         panel.add(new HelpArea("Show open file/folder dialog"),helpGBC(y));
         panel.add(new JLabel("Escape"),labelGBC(++y));
@@ -83,9 +83,9 @@ public class HelpDialog extends JDialog {
         panel.add(new JLabel("End"),labelGBC(++y));
         panel.add(new HelpArea("Forward to the last image in the selected folder"),helpGBC(y));
         panel.add(new JLabel("Page Up"),labelGBC(++y));
-        panel.add(new HelpArea("Jump forward for several images"),helpGBC(y));
+        panel.add(new HelpArea("Jump forward several images"),helpGBC(y));
         panel.add(new JLabel("Page Down"),labelGBC(++y));
-        panel.add(new HelpArea("Jump backward for several images"),helpGBC(y));
+        panel.add(new HelpArea("Jump backward several images"),helpGBC(y));
         panel.add(new JLabel("Left Mouse Button"),labelGBC(++y));
         panel.add(new HelpArea("Show original image / Show highlight cursor / Draw on image / Show next image"),
                 helpGBC(y));

@@ -24,36 +24,6 @@ import com.jakabobnar.imageviewer.image.EXIFData;
 public class EXIFDisplayer extends OverlayDialog {
 
     private static final long serialVersionUID = -1676562847366651873L;
-    private static EXIFDisplayer INSTANCE;
-
-    /**
-     * Return the singleton instance of this displayer. The owner of the displayer is {@link ViewerFrame#instance}. This
-     * displayer is instantiated at start of the application, so this method can be called from any thread.
-     *
-     * @return the singleton instance
-     */
-    public static EXIFDisplayer getInstance() {
-        return getInstance(ViewerFrame.instance);
-    }
-
-    /**
-     * Returns the singleton instance of this displayer. If the instance does not exist yet it is created, the provided
-     * frame being the owner of the dialog.
-     * <p>
-     * In theory this method should be synchronized to prevent instantiating two instances of the displayer. However,
-     * the displayer is instantiated immediately when the application is started, before any other method could invoke
-     * this method.
-     * </p>
-     *
-     * @param frame the owner of the dialog if the dialog does not exist yet
-     * @return the singleton instance
-     */
-    public static EXIFDisplayer getInstance(JFrame frame) {
-        if (INSTANCE == null) {
-            INSTANCE = new EXIFDisplayer(frame);
-        }
-        return INSTANCE;
-    }
 
     private static final int C_WIDTH = 380;
     private static final int C_HEIGHT = 78;
@@ -63,7 +33,12 @@ public class EXIFDisplayer extends OverlayDialog {
     private JTextPane textPane;
     private EXIFData currentData;
 
-    private EXIFDisplayer(JFrame frame) {
+    /**
+     * Construct a new EXIFDisplayer with the given frame as its parent.
+     * 
+     * @param frame the parent frame (cannot be null)
+     */
+    public EXIFDisplayer(JFrame frame) {
         super(frame,C_WIDTH,C_HEIGHT);
     }
 

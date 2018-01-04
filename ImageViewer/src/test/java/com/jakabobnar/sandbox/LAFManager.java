@@ -8,8 +8,6 @@ import java.awt.Color;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
-import com.jakabobnar.imageviewer.EXIFDisplayer;
-import com.jakabobnar.imageviewer.HistogramDisplayer;
 import com.jakabobnar.imageviewer.ViewerFrame;
 import com.jakabobnar.imageviewer.components.SettingsDialog;
 import com.jakabobnar.imageviewer.util.Settings;
@@ -58,11 +56,7 @@ public class LAFManager {
             } catch (Exception e) {
                 // ignore
             }
-//            javax.swing.plaf.ColorUIResource[r=38,g=154,b=153]
-//                    javax.swing.plaf.ColorUIResource[r=32,g=64,b=64]
             ViewerFrame frame = new ViewerFrame();
-            EXIFDisplayer.getInstance(frame);
-            HistogramDisplayer.getInstance(frame);
             SettingsDialog.open(frame, new Settings());
         });
     }

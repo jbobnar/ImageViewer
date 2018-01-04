@@ -17,7 +17,6 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.function.Consumer;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -28,8 +27,6 @@ import javax.swing.JPopupMenu;
 import javax.swing.SwingConstants;
 import javax.swing.event.PopupMenuEvent;
 
-import com.jakabobnar.imageviewer.components.AboutDialog;
-import com.jakabobnar.imageviewer.components.HelpDialog;
 import com.jakabobnar.imageviewer.util.AbstractEventAdapter;
 import com.jakabobnar.imageviewer.util.Utilities;
 
@@ -48,15 +45,12 @@ public class Toolbar extends JPanel {
     private JLabel fileInfo;
     private JLabel indexInfo;
     private Paint paint;
-    private final List<Consumer<File>> recentFilesListeners = new CopyOnWriteArrayList<>();
+    private final List<ToolbarListener> toolbarListeners = new CopyOnWriteArrayList<>();
 
     /**
      * Constructs a new Toolbar.
-     *
-     * @param viewer the viewer which this toolbar is for
      */
-    @SuppressWarnings("unused")
-    public Toolbar(Viewer viewer) {
+    public Toolbar() {
         super(new GridBagLayout());
         JButton menu = new JButton("Menu");
         popup = new JPopupMenu();
@@ -73,21 +67,15 @@ public class Toolbar extends JPanel {
             }
         });
         JMenuItem openFile = new JMenuItem("Open File");
-        openFile.addActionListener(a -> ViewerFrame.instance.selectFile());
+        openFile.addActionListener(a -> toolbarListeners.forEach(c -> c.openFile()));
         recentFilesMenu = new JMenu("Recent Files");
         recentFilesMenu.setEnabled(false);
         JMenuItem preferences = new JMenuItem("Preferences");
-        preferences.addActionListener(a -> ViewerFrame.instance.openSettings());
+        preferences.addActionListener(a -> toolbarListeners.forEach(c -> c.openSettings()));
         JMenuItem help = new JMenuItem("Help");
-        help.addActionListener(a -> {
-            new HelpDialog(ViewerFrame.instance);
-            viewer.resetZoomAndDrawing();
-        });
+        help.addActionListener(a -> toolbarListeners.forEach(c -> c.help()));
         JMenuItem about = new JMenuItem("About");
-        about.addActionListener(a -> {
-            new AboutDialog(ViewerFrame.instance);
-            viewer.resetZoomAndDrawing();
-        });
+        about.addActionListener(a -> toolbarListeners.forEach(c -> c.about()));
         JMenuItem exit = new JMenuItem("Exit");
         exit.addActionListener(a -> System.exit(0));
         Utilities.addToPopupMenu(popup,openFile,recentFilesMenu,null,preferences,help,null,about,null,exit);
@@ -101,10 +89,10 @@ public class Toolbar extends JPanel {
         });
         JButton previous = new JButton("Previous");
         previous.setFocusable(false);
-        previous.addActionListener(e -> viewer.advanceImage(false,false));
+        previous.addActionListener(e -> toolbarListeners.forEach(c -> c.advanceImage(false)));
         JButton next = new JButton("Next");
         next.setFocusable(false);
-        next.addActionListener(e -> viewer.advanceImage(true,false));
+        next.addActionListener(e -> toolbarListeners.forEach(c -> c.advanceImage(true)));
         fileInfo = new JLabel();
         fileInfo.setHorizontalAlignment(SwingConstants.RIGHT);
         indexInfo = new JLabel();
@@ -149,16 +137,16 @@ public class Toolbar extends JPanel {
      */
     private void fireRecentFileSelected(String path) {
         File file = new File(path);
-        recentFilesListeners.forEach(c -> c.accept(file));
+        toolbarListeners.forEach(c -> c.recentFileSelected(file));
     }
 
     /**
-     * Add a listener which is notified when a recent file is selected in the menu.
+     * Add a listener which is notified when an action is selected in this toolbar.
      *
-     * @param listener the listener which receives the selected file
+     * @param listener the listener to notify on action
      */
-    public void addRecentFileSelectionListener(Consumer<File> listener) {
-        recentFilesListeners.add(listener);
+    public void addToolbarListener(ToolbarListener listener) {
+        toolbarListeners.add(listener);
     }
 
     @Override
