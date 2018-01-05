@@ -397,41 +397,42 @@ public class ViewerFrame extends JFrame {
         exifDisplayer.setShowing(false);
         if (isUndecorated()) {
             // normal window mode
-            // removeNotify();
+            removeNotify();
+            setUndecorated(false);
+            addNotify();
+            if (lastBounds != null) {
+                setBounds(lastBounds);
+            }
+            // getGraphicsConfiguration().getDevice().setFullScreenWindow(null);
+            // super.dispose();
             // setUndecorated(false);
             // if (lastBounds != null) {
             // setBounds(lastBounds);
             // }
-            getGraphicsConfiguration().getDevice().setFullScreenWindow(null);
-            super.dispose();
-            setUndecorated(false);
-            if (lastBounds != null) {
-                setBounds(lastBounds);
-            }
-            setVisible(true);
+            // setVisible(true);
         } else {
             // full screen mode
             lastBounds = getBounds();
-            // removeNotify();
-            // setUndecorated(true);
-            // Rectangle r = ViewerFrame.this.getGraphicsConfiguration().getBounds();
-            // setSize(r.width,r.height);
-            // setLocation(r.x,r.y);
-            super.dispose();
+            removeNotify();
             setUndecorated(true);
-
-            GraphicsDevice device = getGraphicsConfiguration().getDevice();
-            device.setFullScreenWindow(this);
-
-            if (device.isDisplayChangeSupported()) {
-                Rectangle r = device.getDefaultConfiguration().getBounds();
-                DisplayMode currentMode = device.getDisplayMode();
-                DisplayMode newMode = new DisplayMode(r.width,r.height,currentMode.getBitDepth(),
-                        currentMode.getRefreshRate());
-                device.setDisplayMode(newMode);
-            }
+            addNotify();
+            Rectangle r = ViewerFrame.this.getGraphicsConfiguration().getBounds();
+            setSize(r.width,r.height);
+            setLocation(r.x,r.y);
+            // super.dispose();
+            // setUndecorated(true);
+            //
+            // GraphicsDevice device = getGraphicsConfiguration().getDevice();
+            // device.setFullScreenWindow(this);
+            //
+            // if (device.isDisplayChangeSupported()) {
+            // Rectangle r = device.getDefaultConfiguration().getBounds();
+            // DisplayMode currentMode = device.getDisplayMode();
+            // DisplayMode newMode = new DisplayMode(r.width,r.height,currentMode.getBitDepth(),
+            // currentMode.getRefreshRate());
+            // device.setDisplayMode(newMode);
+            // }
         }
-        // addNotify();
         toFront();
         // Delay scaling
         SwingUtilities.invokeLater(() -> viewer.scaleImages());
