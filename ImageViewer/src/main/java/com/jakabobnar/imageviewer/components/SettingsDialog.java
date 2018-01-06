@@ -175,22 +175,6 @@ public class SettingsDialog extends JDialog {
 
     private static final long serialVersionUID = 2613299115085489670L;
     private static final int HELP_OFFSET = 10;
-    private static SettingsDialog SHARED_INSTANCE;
-
-    /**
-     * Constructs a new dialog, opens it and returns the new settings if they were confirmed.
-     *
-     * @param parent the parent frame
-     * @param settings the old settings to apply to the dialog
-     * @return new settings or empty if cancelled
-     */
-    public static Optional<Settings> open(ViewerFrame parent, Settings settings) {
-        if (SHARED_INSTANCE == null) {
-            SHARED_INSTANCE = new SettingsDialog(parent);
-        }
-        SHARED_INSTANCE.applySettings(settings);
-        return SHARED_INSTANCE.open();
-    }
 
     private Settings settings;
     private float previousOpacity;
@@ -747,7 +731,12 @@ public class SettingsDialog extends JDialog {
         return contentPanel;
     }
 
-    private void applySettings(Settings newSettings) {
+    /**
+     * Apply the settings to the UI components of this dialog.
+     *
+     * @param newSettings the settings to apply
+     */
+    public void applySettings(Settings newSettings) {
         this.settings = newSettings;
         sortingOrder.setSelectedItem(newSettings.sortingOrder);
         playSound.setSelected(newSettings.playSoundOnCycle);

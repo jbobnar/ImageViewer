@@ -107,9 +107,9 @@ public class Viewer extends JPanel {
     private int step = 10;
     private boolean mouseButtonAdvance = false;
     private boolean waitForImagesToLoadWhenScrolling = true;
-    private ExecutorService worker;
-    private ExecutorService imageReloader;
-    private ExecutorService mtImageLoader;
+    private transient ExecutorService worker;
+    private transient ExecutorService imageReloader;
+    private transient ExecutorService mtImageLoader;
     private Timer autoSlideShowTimer;
     private int transitionDuration;
     private int slideShowDuration;
@@ -895,7 +895,6 @@ public class Viewer extends JPanel {
         }
         lastLoadedId = fileIndex;
         fastReadBuffer.clear();
-        getMTImageLoader().execute(() -> System.gc());
     }
 
     private void increaseByStep(boolean forward) {

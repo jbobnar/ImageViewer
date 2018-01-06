@@ -45,7 +45,7 @@ public abstract class OverlayDialog extends JDialog {
     private float regularOpacity = .6f;
     protected MouseAdapter adapter = new MouseAdapter() {
 
-        private Point offset;
+        private Point offset = new Point(0,0);
 
         @Override
         public void mousePressed(MouseEvent e) {

@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -85,29 +86,35 @@ public class ImageUtil {
     private static volatile AtomicInteger imageId = new AtomicInteger(0);
     private static final ThreadLocal<MediaTracker> MEDIA_TRACKER = ThreadLocal
             .withInitial(() -> new MediaTracker(new JPanel()));
-    private static final Map<String, Orientation> ORIENTATION_TO_CODE = new HashMap<>();
+    private static final Map<String, Orientation> ORIENTATION_TO_CODE;
     private static final Map<File, EXIFData> EXIF_CACHE = new HashMap<>();
-    public static final Map<RenderingHints.Key, Object> NO_HINTS = new HashMap<>();
-    public static final Map<RenderingHints.Key, Object> HINTS = new HashMap<>();
+    /** Rendering hints for fast and low quality rendering */
+    public static final Map<RenderingHints.Key, Object> NO_HINTS;
+    /** Rendering hints for high quality rendering */
+    public static final Map<RenderingHints.Key, Object> HINTS;
 
     static {
+        Map<RenderingHints.Key, Object> hints = new HashMap<>();
         // Hints for quality rendering
-        HINTS.put(RenderingHints.KEY_COLOR_RENDERING,RenderingHints.VALUE_COLOR_RENDER_QUALITY);
-        HINTS.put(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
-        HINTS.put(RenderingHints.KEY_RENDERING,RenderingHints.VALUE_RENDER_QUALITY);
-        HINTS.put(RenderingHints.KEY_INTERPOLATION,RenderingHints.VALUE_INTERPOLATION_BICUBIC);
-        HINTS.put(RenderingHints.KEY_ALPHA_INTERPOLATION,RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
+        hints.put(RenderingHints.KEY_COLOR_RENDERING,RenderingHints.VALUE_COLOR_RENDER_QUALITY);
+        hints.put(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
+        hints.put(RenderingHints.KEY_RENDERING,RenderingHints.VALUE_RENDER_QUALITY);
+        hints.put(RenderingHints.KEY_INTERPOLATION,RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+        hints.put(RenderingHints.KEY_ALPHA_INTERPOLATION,RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
+        HINTS = Collections.unmodifiableMap(hints);
 
+        Map<RenderingHints.Key, Object> nohints = new HashMap<>();
         // hints for fast rendering
-        NO_HINTS.put(RenderingHints.KEY_COLOR_RENDERING,RenderingHints.VALUE_COLOR_RENDER_SPEED);
-        NO_HINTS.put(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_OFF);
-        NO_HINTS.put(RenderingHints.KEY_RENDERING,RenderingHints.VALUE_RENDER_SPEED);
-        NO_HINTS.put(RenderingHints.KEY_INTERPOLATION,RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
-        NO_HINTS.put(RenderingHints.KEY_ALPHA_INTERPOLATION,RenderingHints.VALUE_ALPHA_INTERPOLATION_SPEED);
-        NO_HINTS.put(RenderingHints.KEY_DITHERING,RenderingHints.VALUE_DITHER_DISABLE);
-        NO_HINTS.put(RenderingHints.KEY_FRACTIONALMETRICS,RenderingHints.VALUE_FRACTIONALMETRICS_OFF);
-        NO_HINTS.put(RenderingHints.KEY_STROKE_CONTROL,RenderingHints.VALUE_STROKE_PURE);
-        NO_HINTS.put(RenderingHints.KEY_TEXT_ANTIALIASING,RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
+        nohints.put(RenderingHints.KEY_COLOR_RENDERING,RenderingHints.VALUE_COLOR_RENDER_SPEED);
+        nohints.put(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_OFF);
+        nohints.put(RenderingHints.KEY_RENDERING,RenderingHints.VALUE_RENDER_SPEED);
+        nohints.put(RenderingHints.KEY_INTERPOLATION,RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+        nohints.put(RenderingHints.KEY_ALPHA_INTERPOLATION,RenderingHints.VALUE_ALPHA_INTERPOLATION_SPEED);
+        nohints.put(RenderingHints.KEY_DITHERING,RenderingHints.VALUE_DITHER_DISABLE);
+        nohints.put(RenderingHints.KEY_FRACTIONALMETRICS,RenderingHints.VALUE_FRACTIONALMETRICS_OFF);
+        nohints.put(RenderingHints.KEY_STROKE_CONTROL,RenderingHints.VALUE_STROKE_PURE);
+        nohints.put(RenderingHints.KEY_TEXT_ANTIALIASING,RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
+        NO_HINTS = Collections.unmodifiableMap(nohints);
 
         // Create no image
         Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
@@ -120,7 +127,10 @@ public class ImageUtil {
         g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
         g.drawString(message,(dim.width - width) / 2,dim.height / 2);
         g.dispose();
-        Arrays.stream(Orientation.values()).forEach(c -> ORIENTATION_TO_CODE.put(c.description,c));
+
+        Map<String,Orientation> orientationToCode = new HashMap<>();
+        Arrays.stream(Orientation.values()).forEach(c -> orientationToCode.put(c.description,c));
+        ORIENTATION_TO_CODE = Collections.unmodifiableMap(orientationToCode);
     }
 
     /**

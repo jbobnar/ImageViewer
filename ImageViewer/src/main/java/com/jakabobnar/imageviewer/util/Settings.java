@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -27,8 +28,9 @@ import com.jakabobnar.imageviewer.transition.TransitionsMap;
  * @author Jaka Bobnar
  *
  */
-public class Settings {
+public class Settings implements Serializable {
 
+    private static final long serialVersionUID = 6536150871347674562L;
     private static final String USE_MULTIPLE_CORES = "useMultipleCores";
     private static final String COLOR_MANAGE = "colorManage";
     private static final String SCALE_TO_FIT = "scaleSmallImagesToFit";

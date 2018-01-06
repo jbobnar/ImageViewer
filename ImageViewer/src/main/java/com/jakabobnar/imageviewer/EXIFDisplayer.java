@@ -28,14 +28,14 @@ public class EXIFDisplayer extends OverlayDialog {
     private static final int C_WIDTH = 380;
     private static final int C_HEIGHT = 78;
 
-    private Style topStyle;
-    private Style secondStyle;
+    private transient Style topStyle;
+    private transient Style secondStyle;
     private JTextPane textPane;
     private EXIFData currentData;
 
     /**
      * Construct a new EXIFDisplayer with the given frame as its parent.
-     * 
+     *
      * @param frame the parent frame (cannot be null)
      */
     public EXIFDisplayer(JFrame frame) {

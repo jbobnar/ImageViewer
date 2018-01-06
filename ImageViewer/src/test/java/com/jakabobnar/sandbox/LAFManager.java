@@ -10,7 +10,6 @@ import javax.swing.UIManager;
 
 import com.jakabobnar.imageviewer.ViewerFrame;
 import com.jakabobnar.imageviewer.components.SettingsDialog;
-import com.jakabobnar.imageviewer.util.Settings;
 
 import net.sf.tinylaf.Theme;
 import net.sf.tinylaf.TinyLookAndFeel;
@@ -57,7 +56,7 @@ public class LAFManager {
                 // ignore
             }
             ViewerFrame frame = new ViewerFrame();
-            SettingsDialog.open(frame, new Settings());
+            new SettingsDialog(frame).open();
         });
     }
 }

@@ -44,7 +44,7 @@ public class Toolbar extends JPanel {
     private boolean popupShowing = false;
     private JLabel fileInfo;
     private JLabel indexInfo;
-    private Paint paint;
+    private transient Paint paint;
     private final List<ToolbarListener> toolbarListeners = new CopyOnWriteArrayList<>();
 
     /**

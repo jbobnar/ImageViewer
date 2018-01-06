@@ -7,7 +7,6 @@ import static com.jakabobnar.imageviewer.util.Utilities.registerKeyStroke;
 import static javax.swing.KeyStroke.getKeyStroke;
 
 import java.awt.AWTException;
-import java.awt.DisplayMode;
 import java.awt.Frame;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
@@ -32,6 +31,7 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
+import javax.swing.WindowConstants;
 
 import com.jakabobnar.colorprofile.ColorProfileManager;
 import com.jakabobnar.imageviewer.components.HelpDialog;
@@ -85,6 +85,7 @@ public class ViewerFrame extends JFrame {
     private Settings settings;
     private EXIFDisplayer exifDisplayer;
     private HistogramDisplayer histogramDisplayer;
+    private SettingsDialog settingsDialog;
 
     /**
      * Constructs a new frame.
@@ -107,7 +108,7 @@ public class ViewerFrame extends JFrame {
         setSize(1000,600);
         exifDisplayer = new EXIFDisplayer(this);
         histogramDisplayer = new HistogramDisplayer(this);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         settings = new Settings();
         // If system color profile option is selected, load the profile
         if (settings.systemColorProfile) {
@@ -300,7 +301,11 @@ public class ViewerFrame extends JFrame {
      * Open the settings dialog.
      */
     void openSettings() {
-        SettingsDialog.open(ViewerFrame.this,settings).ifPresent(s -> setSettings(s,false));
+        if (settingsDialog == null) {
+            settingsDialog = new SettingsDialog(this);
+        }
+        settingsDialog.applySettings(settings);
+        settingsDialog.open().ifPresent(s -> setSettings(s,false));
         viewer.resetZoomAndDrawing();
     }
 
@@ -314,9 +319,9 @@ public class ViewerFrame extends JFrame {
         viewer.resetZoomAndDrawing();
     }
 
-    private FileChooser chooser;
-    private Stage stage;
-    private JFXPanel panel;
+    private transient FileChooser chooser;
+    private transient Stage stage;
+    private transient JFXPanel panel;
 
     /**
      * Open the native file chooser and load the file that is selected. The Java FX file chooser is used as it is the

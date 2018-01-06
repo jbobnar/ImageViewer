@@ -21,6 +21,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -51,8 +52,8 @@ public class ImageCanvas extends JComponent {
 
     private Dimension screenDimension = Toolkit.getDefaultToolkit().getScreenSize();
 
-    private BufferedImage image;
-    private BufferedImage transitionToImage;
+    private transient BufferedImage image;
+    private transient BufferedImage transitionToImage;
     private boolean transitionForward = true;
     private Timer transitionTimer;
     private Timer hideMouseTimer;
@@ -66,7 +67,7 @@ public class ImageCanvas extends JComponent {
     private Color backgroundColor = Color.BLACK;
     private float transitionSpeed = 2000;
     private final List<Transition> transitionEffects = new ArrayList<>(0);// .asList(new FadeTransition());
-    private Transition selectedTransition;
+    private transient Transition selectedTransition;
     private final ZoomHandler zoomHandler;
     private final Toolbar applicationToolbar;
 
@@ -75,14 +76,15 @@ public class ImageCanvas extends JComponent {
     private static final int ORIGINAL = 2;
     private static final int CURSOR = 3;
     private static final int PAINTING = 4;
+    private static final int CURSOR_SIZE = 50;
 
-    private class ZoomHandler extends AbstractEventAdapter {
+    private class ZoomHandler extends AbstractEventAdapter implements Serializable {
+        private static final long serialVersionUID = -2245928845012988054L;
         private final ExecutorService zoomExecutor = new ImageExecutor("CanvasZoom",1,
                 new DismissableBlockingQueue<>(2));
         private float zoomFactor = 3f;
         private boolean doFastRescaling = false;
 
-        private final int CURSOR_SIZE = 50;
         private final Stroke paintStroke = new BasicStroke(5f,BasicStroke.JOIN_ROUND,BasicStroke.CAP_ROUND);
         private BufferedImage cursor;
 
@@ -430,7 +432,7 @@ public class ImageCanvas extends JComponent {
          * @param fast true to do a fast rescaling or false for smooth
          */
         void setZoomFactor(float zoomFactor, boolean fast) {
-            if (this.zoomFactor != zoomFactor || fast != doFastRescaling) {
+            if (Float.compare(this.zoomFactor, zoomFactor) != 0 || fast != doFastRescaling) {
                 this.zoomFactor = zoomFactor;
                 this.doFastRescaling = fast;
                 createZoomImage(originalImage);

@@ -47,7 +47,8 @@ public class TransitionPreview extends JComponent {
                 image[0] = ImageIO.read(stream);
                 image[1] = ImageIO.read(stream2);
             } catch (Exception e) {
-                e.printStackTrace();
+                // Should never happen
+                System.out.println("Error loading preview images.");
             }
         }).start();
     }
