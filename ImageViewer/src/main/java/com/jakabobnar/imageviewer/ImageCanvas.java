@@ -21,13 +21,14 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 import java.util.concurrent.ExecutorService;
 
 import javax.swing.JComponent;
+import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
@@ -52,6 +53,7 @@ public class ImageCanvas extends JComponent {
 
     private Dimension screenDimension = Toolkit.getDefaultToolkit().getScreenSize();
 
+    private final Random randomGenerator = new Random();
     private transient BufferedImage image;
     private transient BufferedImage transitionToImage;
     private boolean transitionForward = true;
@@ -66,9 +68,9 @@ public class ImageCanvas extends JComponent {
 
     private Color backgroundColor = Color.BLACK;
     private float transitionSpeed = 2000;
-    private final List<Transition> transitionEffects = new ArrayList<>(0);// .asList(new FadeTransition());
+    private final List<Transition> transitionEffects = new ArrayList<>(5);
     private transient Transition selectedTransition;
-    private final ZoomHandler zoomHandler;
+    private final transient ZoomHandler zoomHandler;
     private final Toolbar applicationToolbar;
 
     private static final int NONE = 0;
@@ -78,8 +80,7 @@ public class ImageCanvas extends JComponent {
     private static final int PAINTING = 4;
     private static final int CURSOR_SIZE = 50;
 
-    private class ZoomHandler extends AbstractEventAdapter implements Serializable {
-        private static final long serialVersionUID = -2245928845012988054L;
+    private class ZoomHandler extends AbstractEventAdapter {
         private final ExecutorService zoomExecutor = new ImageExecutor("CanvasZoom",1,
                 new DismissableBlockingQueue<>(2));
         private float zoomFactor = 3f;
@@ -95,7 +96,7 @@ public class ImageCanvas extends JComponent {
         private int zoomWorg, zoomHorg;
         private Point zoomOffsetOrg;
         private float zoomFactorOrg = 1f;
-        private boolean originalWidthSmaller, originalHeightSmaller;
+        
         private int zoomedIn = NONE;
         private Point zoomStart;
         private Point zoomTranslation;
@@ -111,17 +112,23 @@ public class ImageCanvas extends JComponent {
 
         private Color highlightColor;
 
-        private final Optional<Robot> robot;
+        private Optional<Robot> robot;
+        private final JFrame frame;
 
-        ZoomHandler() {
+        ZoomHandler(JFrame frame) {
+            this.frame = frame;
+            updateRobot();
+            setHighlightCursorColor(40 / 255f,100);
+        }
+        
+        void updateRobot() {
             Robot theRobot;
             try {
-                theRobot = new Robot();
+                theRobot = new Robot(frame.getGraphicsConfiguration().getDevice());
             } catch (AWTException | SecurityException e) {
                 theRobot = null;
             }
             this.robot = Optional.ofNullable(theRobot);
-            setHighlightCursorColor(40 / 255f,100);
         }
 
         /**
@@ -349,13 +356,13 @@ public class ImageCanvas extends JComponent {
                 zoomImage = null;
             }
             this.originalImage = orgImage;
-            this.originalWidthSmaller = false;
-            this.originalHeightSmaller = false;
             if (orgImage == null) {
                 return;
             }
             if (enableZoom) {
                 zoomExecutor.execute(() -> {
+                    boolean originalWidthSmaller = false;
+                    boolean originalHeightSmaller = false;
                     // first, "downsize" the image to the current canvas size
                     int width = getWidth();
                     int height = getHeight();
@@ -364,7 +371,6 @@ public class ImageCanvas extends JComponent {
                     zoomFactorOrg = 1f;
                     zoomFactorOrg = Math.max(zoomWorg / (float) width,zoomHorg / (float) height);
                     if (zoomWorg < width || zoomHorg < height) {
-                        // zoomFactorOrg = Math.max(zoomWorg / (float) width,zoomHorg / (float) height);
                         originalWidthSmaller = zoomWorg < width;
                         originalHeightSmaller = zoomHorg < height;
                     }
@@ -522,9 +528,11 @@ public class ImageCanvas extends JComponent {
      * Construct a new image canvas.
      *
      * @param toolbar reference to the toolbar, which needs to be repainted after canvas is repainted
+     * @param owner the frame that owns this canvas
      */
-    public ImageCanvas(Toolbar toolbar) {
-        zoomHandler = new ZoomHandler();
+    public ImageCanvas(Toolbar toolbar, JFrame owner) {
+        zoomHandler = new ZoomHandler(owner);
+        //TODO
         applicationToolbar = toolbar;
         addMouseListener(zoomHandler);
         addMouseMotionListener(zoomHandler);
@@ -730,7 +738,7 @@ public class ImageCanvas extends JComponent {
                     transitionTo(destinationImage,destinationOrgImage,forward);
                 }
             } else {
-                this.selectedTransition = transitionEffects.get((int) (Math.random() * transitionEffects.size()));
+                this.selectedTransition = transitionEffects.get(randomGenerator.nextInt(transitionEffects.size()));
                 this.transitionToImage = destinationImage;
                 this.transitionForward = forward;
                 this.inTransition = true;
@@ -822,5 +830,6 @@ public class ImageCanvas extends JComponent {
     public void updateScreenDimension() {
         Rectangle r = getGraphicsConfiguration().getBounds();
         screenDimension = new Dimension(r.width,r.height);
+        zoomHandler.updateRobot();
     }
 }

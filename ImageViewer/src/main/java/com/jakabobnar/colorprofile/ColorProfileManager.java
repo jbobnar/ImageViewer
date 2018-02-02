@@ -20,11 +20,13 @@ import java.util.Locale;
  * @author Jaka Bobnar
  *
  */
-public class ColorProfileManager {
+public final class ColorProfileManager {
 
-    private static enum OS {
+    private enum OS {
         WIN, NIX, MAC, UNKNOWN
     }
+    
+    private ColorProfileManager() {}
 
     /**
      * Returns the default color profile for the given graphical component. The component is expected to be displayed on

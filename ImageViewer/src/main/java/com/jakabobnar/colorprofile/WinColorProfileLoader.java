@@ -15,6 +15,8 @@ import java.util.Locale;
  */
 public final class WinColorProfileLoader {
 
+    private WinColorProfileLoader() {}
+    
     private static final boolean LIB_LOADED;
     private static final String DEFAULT_LOCATION;
 

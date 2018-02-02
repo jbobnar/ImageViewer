@@ -48,10 +48,8 @@ import net.sf.tinylaf.TinyLookAndFeel;
 /**
  * ViewerFrame is the main application frame and entry point.
  *
- * @author Jaka Bobnar
- *
- *         TODO When scrolling prefer quality over speed. Invert mouse scrolling Bigger Controls and larger fonts Fast
- *         scaling method implementation
+ * @author Jaka Bobnar TODO When scrolling prefer quality over speed. Invert mouse scrolling Bigger Controls and larger
+ *         fonts Fast scaling method implementation
  */
 public class ViewerFrame extends JFrame {
 
@@ -167,7 +165,6 @@ public class ViewerFrame extends JFrame {
                 }
             }
         });
-
         SwingUtilities.invokeLater(() -> {
             // Do this last to avoid problems with file loading requests due to multithreading. In the end we need
             // this.file to be selected.
@@ -180,7 +177,6 @@ public class ViewerFrame extends JFrame {
                 }
             }
         });
-
         Thread saveSettings = new Thread(() -> setSettings(settings,true));
         saveSettings.setDaemon(false);
         Runtime.getRuntime().addShutdownHook(saveSettings);
@@ -188,7 +184,6 @@ public class ViewerFrame extends JFrame {
 
     /*
      * (non-Javadoc)
-     *
      * @see java.awt.Window#dispose()
      */
     @Override
@@ -244,15 +239,12 @@ public class ViewerFrame extends JFrame {
                             lastBounds = newSettings.frameBounds;
                             setBounds(newSettings.frameBounds);
                         }
-                        if (newSettings.histogramLocation != null) {
-                            if (gc.getBounds().contains(newSettings.histogramLocation)) {
-                                histogramDisplayer.setLocation(newSettings.histogramLocation);
-                            }
+                        if (newSettings.histogramLocation != null
+                                && gc.getBounds().contains(newSettings.histogramLocation)) {
+                            histogramDisplayer.setLocation(newSettings.histogramLocation);
                         }
-                        if (newSettings.exifLocation != null) {
-                            if (gc.getBounds().contains(newSettings.exifLocation)) {
-                                exifDisplayer.setLocation(newSettings.exifLocation);
-                            }
+                        if (newSettings.exifLocation != null && gc.getBounds().contains(newSettings.exifLocation)) {
+                            exifDisplayer.setLocation(newSettings.exifLocation);
                         }
                     }
                 }
@@ -342,8 +334,8 @@ public class ViewerFrame extends JFrame {
                 stage.setWidth(0);
                 stage.setHeight(0);
                 // set position relative to parent
-                stage.setX(ViewerFrame.this.getX() + 50);
-                stage.setY(ViewerFrame.this.getY() + 50);
+                stage.setX(ViewerFrame.this.getX() + 50.);
+                stage.setY(ViewerFrame.this.getY() + 50.);
             }
             // do not allow to show another dialog, if one is already showing
             if (stage.isShowing()) return;

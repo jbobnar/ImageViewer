@@ -117,21 +117,21 @@ public class Viewer extends JPanel {
     private final Toolbar toolbar;
     // Original non profiled images, as loaded from file. If color management is selected, than this image is already
     // converted to sRGB color space (done by the image loading plugins)
-    private BufferedImage[] originalImages;
+    private transient BufferedImage[] originalImages;
     // Color managed images. If display profile is unknown, these are identical to original images
-    private BufferedImage[] images;
+    private transient BufferedImage[] images;
     // Scaled images (fully color managed)
-    private BufferedImage[] scaledImages;
+    private transient BufferedImage[] scaledImages;
     // Exif of the currently loaded images
-    private EXIFData[] exif;
+    private transient EXIFData[] exif;
     // Files from which the above images were loaded
     private File[] imageFiles;
     // Currently applied non profiled image
-    private volatile BufferedImage theOriginalNonProfiledImage;
+    private transient volatile BufferedImage theOriginalNonProfiledImage;
     // File that contains the currently displayed image
     private volatile File loadedFile;
-    private volatile EXIFData loadedEXIF = new EXIFData();
-    private volatile Histogram loadedHistogram;
+    private transient volatile EXIFData loadedEXIF = new EXIFData();
+    private transient volatile Histogram loadedHistogram;
     // The index in the total files array, where we are currently located
     private volatile int fileIndex;
     // All image files at our disposal
@@ -146,7 +146,7 @@ public class Viewer extends JPanel {
     private ColorSpace colorSpace;
     private File colorProfileFile;
     private float trueZoomValue = 3f;
-    private final Object mutex = new Object();
+    private final transient Object mutex = new Object();
     private int currentWidth, currentHeight;
     private boolean disableScrolling = false;
     private boolean toolbarAutoHide = true;
@@ -324,7 +324,7 @@ public class Viewer extends JPanel {
                 resetZoomAndDrawing();
             }
         });
-        canvas = new ImageCanvas(toolbar);
+        canvas = new ImageCanvas(toolbar, frame);
         add(toolbar,gbc(0,1,1,1,1,0,GridBagConstraints.NORTH,GridBagConstraints.HORIZONTAL,0));
         add(canvas,gbc(0,1,1,1,1,1,GridBagConstraints.CENTER,GridBagConstraints.BOTH,0));
         toolbar.setVisible(false);
@@ -338,7 +338,7 @@ public class Viewer extends JPanel {
         registerKeyStrokes();
         viewerFrame.getHistogramDisplayer().setMouseEventReceiver(eventAdapter);
         viewerFrame.getExifDisplayer().setMouseEventReceiver(eventAdapter);
-        Thread th = new Thread(() -> dispose());
+        Thread th = new Thread(this::dispose);
         th.setDaemon(false);
         Runtime.getRuntime().addShutdownHook(th);
     }
@@ -1145,6 +1145,7 @@ public class Viewer extends JPanel {
                                                 }
                                             }
                                         } catch (InterruptedException e) {
+                                            Thread.currentThread().interrupt();
                                             return;
                                         }
                                     } else {
@@ -1241,6 +1242,7 @@ public class Viewer extends JPanel {
                                                 }
                                             }
                                         } catch (InterruptedException e) {
+                                            Thread.currentThread().interrupt();
                                             return;
                                         }
                                     } else {
@@ -1544,6 +1546,7 @@ public class Viewer extends JPanel {
                     scaleImages();
                 }
             } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
                 // ignore - may happen in the case if the wheel loader kicked in
             }
         }
@@ -1783,6 +1786,7 @@ public class Viewer extends JPanel {
                     c.wait(10);
                 }
             } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
                 return;
             }
         }

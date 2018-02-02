@@ -135,12 +135,12 @@ public class HistogramDisplayer extends OverlayDialog {
                     x = new int[4 * length];
                     y = new int[4 * length];
                     for (int i = 0; i < 4 * length; i += 4) {
-                        x[i] = (int) (i / 4 * step);
+                        x[i] = (int) (i / 4. * step);
                         x[i + 1] = x[i];
-                        x[i + 2] = (int) (i / 4 * step + step);
+                        x[i + 2] = (int) (i / 4. * step + step);
                         x[i + 3] = x[i + 2];
                         y[i] = 0;
-                        y[i + 1] = rgbl[j][(int) (i / 4 * r)];
+                        y[i + 1] = rgbl[j][(int) (i / 4. * r)];
                         y[i + 2] = y[i + 1];
                         y[i + 3] = 0;
                         max = Math.max(y[i + 1],max);
@@ -149,9 +149,9 @@ public class HistogramDisplayer extends OverlayDialog {
                     x = new int[2 * length + 2];
                     y = new int[2 * length + 2];
                     for (int i = 0; i < 2 * length; i += 2) {
-                        x[i + 1] = (int) (i / 2 * step);
-                        x[i + 2] = (int) (i / 2 * step + step);
-                        y[i + 1] = rgbl[j][(int) (i / 2 * r)];
+                        x[i + 1] = (int) (i / 2. * step);
+                        x[i + 2] = (int) (i / 2. * step + step);
+                        y[i + 1] = rgbl[j][(int) (i / 2. * r)];
                         y[i + 2] = y[i + 1];
                         max = Math.max(y[i + 1],max);
                     }
@@ -278,7 +278,7 @@ public class HistogramDisplayer extends OverlayDialog {
             }
             StringBuilder sb = new StringBuilder(30);
             caption.forEach(s -> sb.append(s).append(',').append(' '));
-            displayers[0].setIndices(indices.stream().mapToInt(c -> c.intValue()).toArray(),
+            displayers[0].setIndices(indices.stream().mapToInt(Integer::intValue).toArray(),
                     sb.length() > 0 ? sb.substring(0,sb.length() - 2) : "");
         } else {
             if (showChannels) {

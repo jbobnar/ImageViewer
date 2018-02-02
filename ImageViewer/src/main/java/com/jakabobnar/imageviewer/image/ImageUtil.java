@@ -50,8 +50,10 @@ import com.twelvemonkeys.imageio.util.Constants;
  * @author Jaka Bobnar
  *
  */
-public class ImageUtil {
+public final class ImageUtil {
 
+    private ImageUtil() {}
+    
     /**
      * Orientation lists possible orientations in which an image can be. The description of the orientation is what the
      * metadata extractor knows.
@@ -59,7 +61,7 @@ public class ImageUtil {
      * @author Jaka Bobnar
      *
      */
-    public static enum Orientation {
+    public enum Orientation {
         NORMAL("Top, left side (Horizontal / normal)"), //
         MIRROR_HORIZONTAL("Top, right side (Mirror horizontal)"), //
         MIRROR_VERTICAL("Bottom, left side (Mirror vertical)"), //
@@ -407,6 +409,7 @@ public class ImageUtil {
         try {
             image = subsampleImage(file,800,600,true);
         } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
             // if reading was interrupted, return null
         }
         if (image == null) {
@@ -492,9 +495,9 @@ public class ImageUtil {
             ColorConvertOp cop = new ColorConvertOp(srcSpace,destSpace,null);
             cop.filter(image.getData(),ret.getRaster());
             return ret;
-        } catch (Throwable t) {
+        } catch (Exception t) {
             // ignore
-            System.out.println(t);
+            System.out.println("Exception while converting color space: " + t.getMessage());
         }
         return image;
     }

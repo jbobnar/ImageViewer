@@ -43,7 +43,7 @@ public abstract class OverlayDialog extends JDialog {
     private static final long serialVersionUID = -1448020813812555955L;
     private float focusOpacity = .9f;
     private float regularOpacity = .6f;
-    protected MouseAdapter adapter = new MouseAdapter() {
+    protected transient MouseAdapter adapter = new MouseAdapter() {
 
         private Point offset = new Point(0,0);
 
@@ -95,8 +95,8 @@ public abstract class OverlayDialog extends JDialog {
     private Rectangle myLocation;
     private Rectangle parentLocation;
     private float targetOpacity = regularOpacity;
-    private GradientPaint paint;
-    private Optional<MouseAdapter> mouseEventReceiver;
+    private transient GradientPaint paint;
+    private transient Optional<MouseAdapter> mouseEventReceiver;
 
     /**
      * Constructs a new dialog.
@@ -141,9 +141,9 @@ public abstract class OverlayDialog extends JDialog {
         setSize(width,height);
         setFocusable(false);
         setFocusableWindowState(false);
-        int x = (int) Math.min(parent.getX() + parent.getWidth() * 0.8,parent.getX() + parent.getWidth() - width - 15);
+        int x = (int) Math.min(parent.getX() + parent.getWidth() * 0.8,parent.getX() + parent.getWidth() - width - 15.);
         int y = (int) Math.min(parent.getY() + parent.getHeight() * 0.8,
-                parent.getY() + parent.getHeight() - height - 15);
+                parent.getY() + parent.getHeight() - height - 15.);
         if (x < 0) x = 0;
         if (y < 0) y = 0;
         setLocation(x,y);

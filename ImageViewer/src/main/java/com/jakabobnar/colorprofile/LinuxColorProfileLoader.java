@@ -10,8 +10,10 @@ package com.jakabobnar.colorprofile;
  * @author Jaka Bobnar
  *
  */
-public class LinuxColorProfileLoader {
+public final class LinuxColorProfileLoader {
 
+    private LinuxColorProfileLoader() {}
+    
     private static final String DEFAULT_LOCATION = "/usr/share/color/icc/colord";
 
     /**

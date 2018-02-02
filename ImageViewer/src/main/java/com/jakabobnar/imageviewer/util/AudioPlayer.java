@@ -26,7 +26,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 public final class AudioPlayer {
 
     private static final String BEEP_FILE = "beep.wav";
-    private static AudioPlayer INSTANCE = new AudioPlayer();
+    private static final AudioPlayer INSTANCE = new AudioPlayer();
     private ExecutorService executor;
     private AtomicBoolean playing = new AtomicBoolean(false);
     private InputStream beepInputStream;

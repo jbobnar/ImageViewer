@@ -55,13 +55,13 @@ public class TransitionPreview extends JComponent {
 
     private Transition transition;
     private Timer timer;
-    private final float transitionSpeed = 1500;
+    private static final float TRANSITION_SPEED = 1500;
     private float transitionParameter = 0f;
     private long transitionStartTime;
     private boolean inTransition = false;
     private int c = 0;
 
-    private BufferedImage im1, im2;
+    private transient BufferedImage im1, im2;
     private static final Dimension DIM = new Dimension(250,167);
 
     /**
@@ -75,8 +75,8 @@ public class TransitionPreview extends JComponent {
             long time = System.currentTimeMillis();
             long duration = time - transitionStartTime;
             if (inTransition) {
-                if (duration < transitionSpeed) {
-                    transitionParameter = 1f - duration / transitionSpeed;
+                if (duration < TRANSITION_SPEED) {
+                    transitionParameter = 1f - duration / TRANSITION_SPEED;
                 } else {
                     inTransition = false;
                     transitionStartTime = time;
@@ -86,7 +86,7 @@ public class TransitionPreview extends JComponent {
                 }
                 repaint();
             } else {
-                if (duration > transitionSpeed / 2) {
+                if (duration > TRANSITION_SPEED / 2) {
                     inTransition = true;
                     transitionStartTime = time;
                 }

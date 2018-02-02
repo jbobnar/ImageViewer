@@ -67,15 +67,15 @@ public class Toolbar extends JPanel {
             }
         });
         JMenuItem openFile = new JMenuItem("Open File");
-        openFile.addActionListener(a -> toolbarListeners.forEach(c -> c.openFile()));
+        openFile.addActionListener(a -> toolbarListeners.forEach(ToolbarListener::openFile));
         recentFilesMenu = new JMenu("Recent Files");
         recentFilesMenu.setEnabled(false);
         JMenuItem preferences = new JMenuItem("Preferences");
-        preferences.addActionListener(a -> toolbarListeners.forEach(c -> c.openSettings()));
+        preferences.addActionListener(a -> toolbarListeners.forEach(ToolbarListener::openSettings));
         JMenuItem help = new JMenuItem("Help");
-        help.addActionListener(a -> toolbarListeners.forEach(c -> c.help()));
+        help.addActionListener(a -> toolbarListeners.forEach(ToolbarListener::help));
         JMenuItem about = new JMenuItem("About");
-        about.addActionListener(a -> toolbarListeners.forEach(c -> c.about()));
+        about.addActionListener(a -> toolbarListeners.forEach(ToolbarListener::about));
         JMenuItem exit = new JMenuItem("Exit");
         exit.addActionListener(a -> System.exit(0));
         Utilities.addToPopupMenu(popup,openFile,recentFilesMenu,null,preferences,help,null,about,null,exit);
