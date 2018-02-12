@@ -97,8 +97,7 @@ public class ViewerFrame extends JFrame {
      *
      * @param file the file to open
      */
-    public ViewerFrame(File file) {
-        this.file = file;
+    public ViewerFrame(final File file) {
         setTitle("Image Viewer");
         setIconImages(Arrays.asList("i256.png","i128.png","i64.png","i48.png","i32.png","i16.png").stream()
                 .map(s -> new ImageIcon(getClass().getClassLoader().getResource(s)).getImage())
@@ -112,7 +111,7 @@ public class ViewerFrame extends JFrame {
         if (settings.systemColorProfile) {
             settings.colorProfile = ColorProfileManager.getColorProfileForComponent(ViewerFrame.this);
         }
-        viewer = new Viewer(file,this);
+        viewer = new Viewer(null,this);
         viewer.addRecentFilesSelectionListener(f -> {
             settings.addRecentFile(f);
             viewer.updateRecentFiles(settings.getRecentFiles());
@@ -169,12 +168,15 @@ public class ViewerFrame extends JFrame {
             // Do this last to avoid problems with file loading requests due to multithreading. In the end we need
             // this.file to be selected.
             viewer.applySettings(settings);
-            if (settings.lastFile != null) {
+            this.file = file;
+            if (settings.lastFile != null && this.file == null) {
                 File lastFile = new File(settings.lastFile);
                 if (lastFile.exists()) {
                     this.file = lastFile;
-                    viewer.openFileOrFolder(this.file);
                 }
+            }
+            if (this.file != null) {
+                viewer.openFileOrFolder(this.file);
             }
         });
         Thread saveSettings = new Thread(() -> setSettings(settings,true));
