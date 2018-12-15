@@ -48,7 +48,7 @@ import net.sf.tinylaf.TinyLookAndFeel;
 /**
  * ViewerFrame is the main application frame and entry point.
  *
- * @author Jaka Bobnar TODO When scrolling prefer quality over speed. Invert mouse scrolling Bigger Controls and larger
+ * @author Jaka Bobnar TODO Bigger Controls and larger
  *         fonts Fast scaling method implementation
  */
 public class ViewerFrame extends JFrame {

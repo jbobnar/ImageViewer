@@ -95,6 +95,7 @@ public class Viewer extends JPanel {
     }
 
     private boolean reverseAdvanceButtons = false;
+    private boolean reverseScrollingDirection = false;
     private volatile boolean useMulticore = true;
     private volatile boolean colorManage = true;
     private volatile boolean scaleToFit = true;
@@ -103,10 +104,11 @@ public class Viewer extends JPanel {
     private volatile boolean showHistogram = false;
     private volatile boolean cycleWhenAtEnd = false;
     private volatile boolean playSoundOnCycle = false;
+    private volatile boolean waitForImagesToLoadWhenScrolling = true;
+    private volatile boolean preferQualityOverSpeedWhenScrolling = false;
     private Sorting sorting = Sorting.NAME;
     private int step = 10;
     private boolean mouseButtonAdvance = false;
-    private boolean waitForImagesToLoadWhenScrolling = true;
     private transient ExecutorService worker;
     private transient ExecutorService imageReloader;
     private transient ExecutorService mtImageLoader;
@@ -220,10 +222,14 @@ public class Viewer extends JPanel {
                 return;
             }
             if (!loaded.get()) return;
+            int rotation = e.getWheelRotation();
+            if (reverseScrollingDirection) {
+                rotation *= -1;
+            }
             if (e.isAltDown() && SwingUtilities.isRightMouseButton(e)) {
                 // Change zooming with the wheel if alt is down
                 float zoom = canvas.getZoomFactor();
-                zoom += e.getWheelRotation() / 20f;
+                zoom += rotation / 20f;
                 if (zoom < 0.5) zoom = 0.5f;
                 else if (zoom > 5) zoom = 5f;
                 canvas.setZoomFactor(zoom,true);
@@ -231,7 +237,7 @@ public class Viewer extends JPanel {
                 timer.restart();
                 wheelInMotion.compareAndSet(false,true);
                 // advance the image as quickly as possible
-                advanceImage(e.getWheelRotation() > 0,true);
+                advanceImage(rotation > 0,true);
             }
         }
 
@@ -371,8 +377,10 @@ public class Viewer extends JPanel {
         setCycleWhenAtEnd(settings.cycleWhenAtEnd);
         setAutoHideMouseCursor(settings.autoHideMouse);
         setReverseAdvanceButtons(settings.reverseButtons);
+        setReverseScrollingDirection(settings.reverseScrollingDirection);
         setPlaySoundOnCycle(settings.playSoundOnCycle);
         setWaitForImagesToLoadWhenScrolling(settings.waitForImagesToLoadWhenScrolling);
+        setPreferQualityOverSpeedWhenScrolling(settings.preferQualityOverSpeedWhenScrolling);
         setMouseButtonAdvance(settings.mouseButtonAdvance);
         setScaleSmallImagesToFit(settings.scaleToFit);
         setRotateImage(settings.rotateImage);
@@ -513,6 +521,18 @@ public class Viewer extends JPanel {
     }
 
     /**
+     * Sets the flag whether the images should be loaded in high quality when scrolling, or the images should be loaded
+     * in low quality as fast as possible.
+     *
+     * @param show true to prefer quality, false to prefer speed
+     */
+    public void setPreferQualityOverSpeedWhenScrolling(boolean preferQuality) {
+        if (this.preferQualityOverSpeedWhenScrolling == preferQuality) return;
+        stopAllImageLoading();
+        this.preferQualityOverSpeedWhenScrolling = preferQuality;
+    }
+
+    /**
      * Sets the flag whether a short beep is played when the images are cycled.
      *
      * @param playSound true to play a beep or false otherwise
@@ -645,6 +665,15 @@ public class Viewer extends JPanel {
      */
     public void setReverseAdvanceButtons(boolean reverse) {
         this.reverseAdvanceButtons = reverse;
+    }
+
+    /**
+     * Reverse the mouse scrolling direction.
+     *
+     * @param reverse true to reverse the scrolling or false to use the default scrolling direction
+     */
+    public void setReverseScrollingDirection(boolean reverse) {
+        this.reverseScrollingDirection = reverse;
     }
 
     /**
@@ -975,7 +1004,6 @@ public class Viewer extends JPanel {
                     playSoundIfEndOfCycle();
                 }
                 updateImageBuffers(idx,forward,fast);
-
             });
         }
     }
@@ -1088,6 +1116,7 @@ public class Viewer extends JPanel {
                 }
                 File file = files[a];
                 if (fast) {
+                    final boolean loadFast = !preferQualityOverSpeedWhenScrolling;
                     // In fast image loading (mouse scrolling), get the latest from the buffer and fill up the read
                     // buffer with new images
                     ImageFile imf = null;
@@ -1129,10 +1158,9 @@ public class Viewer extends JPanel {
                                 final int k = m;
                                 lastLoadedId = k;
                                 getMTImageLoader().execute(() -> {
-                                    EXIFImage loadedImage = loadImage(files[k],fast);
+                                    EXIFImage loadedImage = loadImage(files[k],loadFast);
                                     if (Thread.currentThread().isInterrupted()) return;
-                                    ImageFile f = new ImageFile(files[k],loadedImage.originalImage,
-                                            loadedImage.profiledImage,loadedImage.data,k);
+                                    ImageFile f = new ImageFile(files[k],loadedImage,k);
                                     if (waitForImagesToLoadWhenScrolling) {
                                         try {
                                             synchronized (fastReadBuffer) {
@@ -1157,17 +1185,18 @@ public class Viewer extends JPanel {
                     }
                     if (imf == null) {
                         // Do not parallelize or no image ready yet.
-                        EXIFImage loadedImage = loadImage(file,fast);
+                        EXIFImage loadedImage = loadImage(file,loadFast);
                         scaleAndSet(file,loadedImage.originalImage,loadedImage.profiledImage,loadedImage.data,width,
-                                height,fast,BUFFER_SIZE - 1);
+                                height,loadFast,BUFFER_SIZE - 1);
                     } else {
-                        scaleAndSet(imf.file,imf.originalImage,imf.profiledImage,imf.exif,width,height,fast,
+                        scaleAndSet(imf.file,imf.originalImage,imf.profiledImage,imf.exif,width,height,loadFast,
                                 BUFFER_SIZE - 1);
                     }
                 } else {
-                    EXIFImage loadedImage = loadImage(file,fast);
+                    //slow scrolling, fast == false
+                    EXIFImage loadedImage = loadImage(file,false);
                     scaleAndSet(file,loadedImage.originalImage,loadedImage.profiledImage,loadedImage.data,width,height,
-                            fast,BUFFER_SIZE - 1);
+                            false,BUFFER_SIZE - 1);
                 }
             }
         } else {
@@ -1194,6 +1223,7 @@ public class Viewer extends JPanel {
                 }
                 File file = files[a];
                 if (fast) {
+                    final boolean loadFast = !preferQualityOverSpeedWhenScrolling;
                     ImageFile imf = null;
                     if (useMulticore) {
                         if (waitForImagesToLoadWhenScrolling) {
@@ -1226,10 +1256,9 @@ public class Viewer extends JPanel {
                                 final int k = m;
                                 lastLoadedId = m;
                                 getMTImageLoader().execute(() -> {
-                                    EXIFImage loadedImage = loadImage(files[k],fast);
+                                    EXIFImage loadedImage = loadImage(files[k],loadFast);
                                     if (Thread.currentThread().isInterrupted()) return;
-                                    ImageFile f = new ImageFile(files[k],loadedImage.originalImage,
-                                            loadedImage.profiledImage,loadedImage.data,k);
+                                    ImageFile f = new ImageFile(files[k],loadedImage,k);
                                     if (waitForImagesToLoadWhenScrolling) {
                                         try {
                                             synchronized (fastReadBuffer) {
@@ -1253,16 +1282,20 @@ public class Viewer extends JPanel {
                         }
                     }
                     if (imf == null) {
-                        EXIFImage loadedImage = loadImage(file,fast);
+                        //in backward direction, we always update the 0 buffer index
+                        EXIFImage loadedImage = loadImage(file,loadFast);
                         scaleAndSet(file,loadedImage.originalImage,loadedImage.profiledImage,loadedImage.data,width,
-                                height,fast,0);
+                                height,loadFast,0);
                     } else {
-                        scaleAndSet(imf.file,imf.originalImage,imf.profiledImage,imf.exif,width,height,fast,0);
+                        //in backward direction, we always update the 0 buffer index
+                        scaleAndSet(imf.file,imf.originalImage,imf.profiledImage,imf.exif,width,height,loadFast,0);
                     }
                 } else {
-                    EXIFImage loadedImage = loadImage(file,fast);
+                    //slow loading
+                    //in backward direction, we always update the 0 buffer index
+                    EXIFImage loadedImage = loadImage(file,false);
                     scaleAndSet(file,loadedImage.originalImage,loadedImage.profiledImage,loadedImage.data,width,height,
-                            fast,0);
+                            false,0);
                 }
             }
         }

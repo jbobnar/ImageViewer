@@ -67,11 +67,13 @@ public class Settings implements Serializable {
     private static final String EXIF_LOCATION = "exifLocation";
     private static final String SLIDESHOW_DURATION = "slideShowDuration";
     private static final String REVERSE_BUTTONS = "reverseButtons";
+    private static final String REVERSE_SCROLLING = "reverseScrolling";
     private static final String BACKGROUND_COLOR = "backgroundColor";
     private static final String TOOLBAR_AUTO_HIDE = "toolbarAutoHide";
     private static final String SHOW_TOOLBAR = "showToolbar";
     private static final String SORTING_ORDER = "sortingOrder";
     private static final String RECENT_FILES = "recentFiles";
+    private static final String QUALITY_OVER_SPEED = "preferQualityOverSpeed";
 
     public Rectangle frameBounds = new Rectangle(0,0,1000,600);
     public boolean fullFrame = false;
@@ -95,10 +97,12 @@ public class Settings implements Serializable {
     public boolean mouseButtonAdvance = false;
     public LMBAction leftMouseButtonAction = LMBAction.PAINT;
     public boolean reverseButtons = false;
+    public boolean reverseScrollingDirection = false;
     public int cursorHue = 40;
     public int cursorOpacity = 100;
     public boolean autoHideMouse = true;
     public boolean waitForImagesToLoadWhenScrolling = true;
+    public boolean preferQualityOverSpeedWhenScrolling = false;
 
     public boolean systemColorProfile = false;
     public boolean useDisplayColorProfile = true;
@@ -160,9 +164,11 @@ public class Settings implements Serializable {
         }
 
         reverseButtons = Boolean.parseBoolean(properties.getProperty(REVERSE_BUTTONS,"false"));
+        reverseScrollingDirection = Boolean.parseBoolean(properties.getProperty(REVERSE_SCROLLING,"false"));
         mouseButtonAdvance = Boolean.parseBoolean(properties.getProperty(MOUSE_BUTTON_ADVANCE,"false"));
         autoHideMouse = Boolean.parseBoolean(properties.getProperty(AUTO_HIDE_MOUSE,"true"));
         waitForImagesToLoadWhenScrolling = Boolean.parseBoolean(properties.getProperty(WAIT_FOR_IMAGES_TO_LOAD,"true"));
+        preferQualityOverSpeedWhenScrolling = Boolean.parseBoolean(properties.getProperty(QUALITY_OVER_SPEED,"false"));
         systemColorProfile = Boolean.parseBoolean(properties.getProperty(USE_SYSTEM_COLOR_PROFILE,"true"));
         String profile = properties.getProperty(COLOR_PROFILE_FILE);
         if (profile != null) {
@@ -321,8 +327,10 @@ public class Settings implements Serializable {
         properties.put(ZOOM_FACTOR,String.valueOf(zoomFactor));
         properties.put(MOUSE_BUTTON_ADVANCE,String.valueOf(mouseButtonAdvance));
         properties.put(REVERSE_BUTTONS,String.valueOf(reverseButtons));
+        properties.put(REVERSE_SCROLLING,String.valueOf(reverseScrollingDirection));
         properties.put(AUTO_HIDE_MOUSE,String.valueOf(autoHideMouse));
         properties.put(WAIT_FOR_IMAGES_TO_LOAD,String.valueOf(waitForImagesToLoadWhenScrolling));
+        properties.put(QUALITY_OVER_SPEED,String.valueOf(preferQualityOverSpeedWhenScrolling));
         properties.put(USE_SYSTEM_COLOR_PROFILE,String.valueOf(systemColorProfile));
         properties.put(USE_DISPLAY_COLOR_PROFILE,String.valueOf(useDisplayColorProfile));
         if (colorProfile != null) {

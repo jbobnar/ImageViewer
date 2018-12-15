@@ -26,8 +26,19 @@ public final class ImageFile implements Comparable<ImageFile> {
     /** Unique id for this image, used for sorting purposes, may be 0 */
     public final int id;
 
+
     /**
-     * ImageFile is a container, which connects the image and the file which the image was loaded from.
+     * Constructs a new ImageFile container, which connects the image and the file which the image was loaded from.
+     *
+     * @param file the source file of the image
+     * @param exifImage the exif image, which contains the original and profiled image read from the source file
+     * @param id the id of the image, which is usually the index of the file in the array of all available files
+     */
+    public ImageFile(File file, EXIFImage exifImage, int id) {
+        this(file, exifImage.originalImage, exifImage.profiledImage, exifImage.data, id);
+    }
+    /**
+     * Constructs a new ImageFile container, which connects the image and the file which the image was loaded from.
      *
      * @param file the file
      * @param originalImage the original image, before applying the display color profile

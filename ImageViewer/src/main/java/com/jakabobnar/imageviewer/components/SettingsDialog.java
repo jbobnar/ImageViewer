@@ -193,7 +193,7 @@ public class SettingsDialog extends JDialog {
         initialize();
         setModal(true);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-        setSize(800,600);
+        setSize(800,660);
         setLocationRelativeTo(frame);
         setResizable(false);
         registerKeyStroke((JComponent) getContentPane(),KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE,0),e -> cancel());
@@ -368,6 +368,9 @@ public class SettingsDialog extends JDialog {
         reverseAdvanceButtons = new JCheckBox("Reverse mouse buttons for next / previous image");
         reverseAdvanceButtons.addItemListener(itemListener(selected -> settings.reverseButtons = selected));
 
+        reverseScrollingDirection = new JCheckBox("Reverse mouse scrolling direction");
+        reverseScrollingDirection.addItemListener(itemListener(selected -> settings.reverseScrollingDirection = selected));
+
         mouseButtonsAdvance = new JRadioButton("Use left/right mouse buttons to advance or go back one image");
         mouseButtonsZoom = new JRadioButton("Use left/right mouse buttons to show original/zoomed image");
         String mouseButtonsHelp = "The left and right mouse buttons can be used to advance to the next image or return "
@@ -471,6 +474,7 @@ public class SettingsDialog extends JDialog {
         contentPanel.add(new HelpArea(showToolbarHelp),gbc(0,++y,2,1,1,0,WEST,HORIZONTAL,0,HELP_OFFSET,2,15));
         contentPanel.add(autoHideMouse,gbc(0,++y,2,1,1,0,WEST,NONE,0,0,10,0));
         contentPanel.add(reverseAdvanceButtons,gbc(0,++y,2,1,1,0,WEST,NONE,0,0,10,0));
+        contentPanel.add(reverseScrollingDirection,gbc(0,++y,2,1,1,0,WEST,NONE,0,0,10,0));
         contentPanel.add(mouseButtonsAdvance,gbc(0,++y,2,1,1,0,WEST,HORIZONTAL,0,0,2,0));
         contentPanel.add(mouseButtonsZoom,gbc(0,++y,2,1,1,0,WEST,HORIZONTAL,0,0,2,0));
         contentPanel.add(new HelpArea(mouseButtonsHelp),gbc(0,++y,2,1,1,0,WEST,HORIZONTAL,0,HELP_OFFSET,2,15));
@@ -629,6 +633,12 @@ public class SettingsDialog extends JDialog {
         waitForImagesToLoad
                 .addItemListener(itemListener(selected -> settings.waitForImagesToLoadWhenScrolling = selected));
 
+        preferQualityOverSpeed = new JCheckBox("Prefer quality over speed when scrolling");
+        String preferQualityOverSpeedHelp = "When scrolling with mouse prefer quality of images over the speed of "
+                + "loading. This can result in significant degradation of the speed of scrolling.";
+        preferQualityOverSpeed
+                .addItemListener(itemListener(selected -> settings.preferQualityOverSpeedWhenScrolling = selected));
+
         colorManage = new JCheckBox("Enable color management");
         String colorManageHelp = "Enable color management to respect the color profiles embedded in the images. "
                 + "Enabling color management also allows you to select the display color profile. "
@@ -649,6 +659,10 @@ public class SettingsDialog extends JDialog {
             @Override
             public Component getListCellRendererComponent(javax.swing.JList<?> list, Object value, int index,
                     boolean isSelected, boolean cellHasFocus) {
+                if (value == null) {
+                    return super.getListCellRendererComponent(list,value,index,isSelected,cellHasFocus);
+                }
+
                 return super.getListCellRendererComponent(list,((File) value).getName(),index,isSelected,cellHasFocus);
             }
         });
@@ -710,6 +724,8 @@ public class SettingsDialog extends JDialog {
         contentPanel.add(new HelpArea(multipleCoresHelp),gbc(0,++y,2,1,1,0,WEST,HORIZONTAL,0,HELP_OFFSET,10,15));
         contentPanel.add(waitForImagesToLoad,gbc(0,++y,2,1,1,0,WEST,NONE,0,0,2,0));
         contentPanel.add(new HelpArea(waitForImagesToLoadHelp),gbc(0,++y,2,1,1,0,WEST,HORIZONTAL,0,HELP_OFFSET,10,15));
+        contentPanel.add(preferQualityOverSpeed,gbc(0,++y,2,1,1,0,WEST,NONE,0,0,2,0));
+        contentPanel.add(new HelpArea(preferQualityOverSpeedHelp),gbc(0,++y,2,1,1,0,WEST,HORIZONTAL,0,HELP_OFFSET,10,15));
         contentPanel.add(colorManage,gbc(0,++y,2,1,1,0,WEST,NONE,0,0,2,0));
         contentPanel.add(new HelpArea(colorManageHelp),gbc(0,++y,2,1,1,0,WEST,HORIZONTAL,0,HELP_OFFSET,10,15));
         contentPanel.add(displayColorManage,gbc(0,++y,2,1,1,0,WEST,NONE,0,15,2,0));
@@ -727,7 +743,7 @@ public class SettingsDialog extends JDialog {
         contentPanel.add(new HelpArea(histogramHelp),gbc(0,++y,2,1,1,0,WEST,HORIZONTAL,0,HELP_OFFSET,10,15));
         contentPanel.add(histoOverlayCharts,gbc(0,++y,2,1,1,0,WEST,NONE,0,15,2,0));
         contentPanel.add(histoOverlayChannels,gbc(0,++y,2,1,1,0,NORTHWEST,NONE,0,15,2,0));
-        contentPanel.add(new HelpArea(histogramOverlayHelp),gbc(0,++y,2,1,1,1,WEST,HORIZONTAL,0,HELP_OFFSET,10,15));
+        contentPanel.add(new HelpArea(histogramOverlayHelp),gbc(0,++y,2,1,1,1,NORTHWEST,HORIZONTAL,0,HELP_OFFSET,10,15));
         return contentPanel;
     }
 
@@ -749,6 +765,7 @@ public class SettingsDialog extends JDialog {
         showToolbar.setSelected(newSettings.showToolbar);
         autoHideMouse.setSelected(newSettings.autoHideMouse);
         reverseAdvanceButtons.setSelected(newSettings.reverseButtons);
+        reverseScrollingDirection.setSelected(newSettings.reverseScrollingDirection);
         mouseButtonsAdvance.setSelected(newSettings.mouseButtonAdvance);
         mouseButtonsZoom.setSelected(!newSettings.mouseButtonAdvance);
         Arrays.asList(zoomSlider,zoomLabel,leftMouseButtonsCursor,leftMouseButtonsPainting)
@@ -788,6 +805,7 @@ public class SettingsDialog extends JDialog {
 
         multipleCores.setSelected(newSettings.useMultipleCores);
         waitForImagesToLoad.setSelected(newSettings.waitForImagesToLoadWhenScrolling);
+        preferQualityOverSpeed.setSelected(newSettings.preferQualityOverSpeedWhenScrolling);
         systemDefaultProfile.setSelected(newSettings.systemColorProfile);
         customProfileSelector.setSelectedItem(newSettings.colorProfile);
         customProfile.setSelected(!newSettings.systemColorProfile);
@@ -817,6 +835,7 @@ public class SettingsDialog extends JDialog {
     private JTextField backgroundColor;
     private JCheckBox autoHideMouse;
     private JCheckBox reverseAdvanceButtons;
+    private JCheckBox reverseScrollingDirection;
     private JCheckBox showToolbar;
     private JRadioButton mouseButtonsAdvance;
     private JRadioButton mouseButtonsZoom;
@@ -840,6 +859,7 @@ public class SettingsDialog extends JDialog {
     private JList<Transition> selectedTransitions;
     private JCheckBox multipleCores;
     private JCheckBox waitForImagesToLoad;
+    private JCheckBox preferQualityOverSpeed;
     private JCheckBox colorManage;
     private JCheckBox displayColorManage;
     private JRadioButton systemDefaultProfile;

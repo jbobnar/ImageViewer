@@ -53,7 +53,7 @@ import com.twelvemonkeys.imageio.util.Constants;
 public final class ImageUtil {
 
     private ImageUtil() {}
-    
+
     /**
      * Orientation lists possible orientations in which an image can be. The description of the orientation is what the
      * metadata extractor knows.
@@ -493,7 +493,7 @@ public final class ImageUtil {
             ICC_Profile profile = property instanceof ICC_Profile ? (ICC_Profile) property : null;
             ColorSpace srcSpace = profile == null ? image.getColorModel().getColorSpace() : new ICC_ColorSpace(profile);
             ColorConvertOp cop = new ColorConvertOp(srcSpace,destSpace,null);
-            cop.filter(image.getData(),ret.getRaster());
+            cop.filter(image.getRaster(),ret.getRaster());
             return ret;
         } catch (Exception t) {
             // ignore

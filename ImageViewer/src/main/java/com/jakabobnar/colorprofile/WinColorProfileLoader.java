@@ -16,16 +16,19 @@ import java.util.Locale;
 public final class WinColorProfileLoader {
 
     private WinColorProfileLoader() {}
-    
+
     private static final boolean LIB_LOADED;
     private static final String DEFAULT_LOCATION;
 
     static {
         // find out the what is the java architecture, to load the appropriate dll
-        String s = System.getProperty("sun.arch.data.model");
+        String s = System.getProperty("os.arch");
+        if (s == null) {
+            s = System.getProperty("sun.arch.data.model");
+        }
         boolean loaded = false;
         if (s != null) {
-            if ("64".equals(s.trim())) {
+            if (s.contains("64")) {
                 loaded = loadLibrary(false);
             } else {
                 loaded = loadLibrary(true);
