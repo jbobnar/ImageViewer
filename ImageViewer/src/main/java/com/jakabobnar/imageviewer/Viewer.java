@@ -99,6 +99,7 @@ public class Viewer extends JPanel {
     private volatile boolean useMulticore = true;
     private volatile boolean colorManage = true;
     private volatile boolean scaleToFit = true;
+    private volatile boolean bestQualityScaling = true;
     private volatile boolean rotateImage = true;
     private volatile boolean showEXIFData = false;
     private volatile boolean showHistogram = false;
@@ -264,7 +265,7 @@ public class Viewer extends JPanel {
         @Override
         public void keyReleased(KeyEvent e) {
             if (e.getKeyCode() == KeyEvent.VK_CONTROL) {
-                canvas.setZoomFactor(trueZoomValue,false);
+                canvas.setZoomFactor(trueZoomValue,!bestQualityScaling);
             }
         }
     }
@@ -383,6 +384,7 @@ public class Viewer extends JPanel {
         setPreferQualityOverSpeedWhenScrolling(settings.preferQualityOverSpeedWhenScrolling);
         setMouseButtonAdvance(settings.mouseButtonAdvance);
         setScaleSmallImagesToFit(settings.scaleToFit);
+        setBestQualityScaling(settings.scaleBestQuality);
         setRotateImage(settings.rotateImage);
         setStepSize(settings.stepSize);
         if (settings.useDisplayColorProfile) {
@@ -645,7 +647,7 @@ public class Viewer extends JPanel {
      */
     public void setZoomFactor(float factor) {
         trueZoomValue = factor;
-        canvas.setZoomFactor(factor,false);
+        canvas.setZoomFactor(factor,!bestQualityScaling);
     }
 
     /**
@@ -707,6 +709,17 @@ public class Viewer extends JPanel {
     public void setScaleSmallImagesToFit(boolean scaleToFit) {
         if (this.scaleToFit == scaleToFit) return;
         this.scaleToFit = scaleToFit;
+        reloadImages();
+    }
+
+    /**
+     * Indicate if the images are scaled with best quality or highest speed algorithm.
+     *
+     * @param bestQuality true to use best quality images or false to use fastest algorithm
+     */
+    public void setBestQualityScaling(boolean bestQuality) {
+        if (this.bestQualityScaling == bestQuality) return;
+        this.bestQualityScaling = bestQuality;
         reloadImages();
     }
 
@@ -1087,6 +1100,8 @@ public class Viewer extends JPanel {
         if (idx < 0 || idx > numFiles) return;
         final int width = canvas.getWidth();
         final int height = canvas.getHeight();
+        final boolean loadFast = !preferQualityOverSpeedWhenScrolling;
+        final boolean scaleFast = loadFast || !bestQualityScaling;
         if (forward) {
             // If cycling is disabled and we're at the end of the list, there is nothing to do
             if (!cycleWhenAtEnd && idx == numFiles - 1) {
@@ -1116,7 +1131,6 @@ public class Viewer extends JPanel {
                 }
                 File file = files[a];
                 if (fast) {
-                    final boolean loadFast = !preferQualityOverSpeedWhenScrolling;
                     // In fast image loading (mouse scrolling), get the latest from the buffer and fill up the read
                     // buffer with new images
                     ImageFile imf = null;
@@ -1187,16 +1201,16 @@ public class Viewer extends JPanel {
                         // Do not parallelize or no image ready yet.
                         EXIFImage loadedImage = loadImage(file,loadFast);
                         scaleAndSet(file,loadedImage.originalImage,loadedImage.profiledImage,loadedImage.data,width,
-                                height,loadFast,BUFFER_SIZE - 1);
+                                height,scaleFast,BUFFER_SIZE - 1);
                     } else {
-                        scaleAndSet(imf.file,imf.originalImage,imf.profiledImage,imf.exif,width,height,loadFast,
+                        scaleAndSet(imf.file,imf.originalImage,imf.profiledImage,imf.exif,width,height,scaleFast,
                                 BUFFER_SIZE - 1);
                     }
                 } else {
                     //slow scrolling, fast == false
                     EXIFImage loadedImage = loadImage(file,false);
                     scaleAndSet(file,loadedImage.originalImage,loadedImage.profiledImage,loadedImage.data,width,height,
-                            false,BUFFER_SIZE - 1);
+                            !bestQualityScaling,BUFFER_SIZE - 1);
                 }
             }
         } else {
@@ -1223,7 +1237,6 @@ public class Viewer extends JPanel {
                 }
                 File file = files[a];
                 if (fast) {
-                    final boolean loadFast = !preferQualityOverSpeedWhenScrolling;
                     ImageFile imf = null;
                     if (useMulticore) {
                         if (waitForImagesToLoadWhenScrolling) {
@@ -1285,27 +1298,27 @@ public class Viewer extends JPanel {
                         //in backward direction, we always update the 0 buffer index
                         EXIFImage loadedImage = loadImage(file,loadFast);
                         scaleAndSet(file,loadedImage.originalImage,loadedImage.profiledImage,loadedImage.data,width,
-                                height,loadFast,0);
+                                height,scaleFast,0);
                     } else {
                         //in backward direction, we always update the 0 buffer index
-                        scaleAndSet(imf.file,imf.originalImage,imf.profiledImage,imf.exif,width,height,loadFast,0);
+                        scaleAndSet(imf.file,imf.originalImage,imf.profiledImage,imf.exif,width,height,scaleFast,0);
                     }
                 } else {
                     //slow loading
                     //in backward direction, we always update the 0 buffer index
                     EXIFImage loadedImage = loadImage(file,false);
                     scaleAndSet(file,loadedImage.originalImage,loadedImage.profiledImage,loadedImage.data,width,height,
-                            false,0);
+                            !bestQualityScaling,0);
                 }
             }
         }
     }
 
     private void scaleAndSet(File file, BufferedImage original, BufferedImage profiledImage, EXIFData data, int width,
-            int height, boolean fast, int destIndex) {
+            int height, boolean scaleFast, int destIndex) {
         // convenience method to avoid repetitive code
         // Scale the profiled image and set it on the buffers
-        BufferedImage scaled = getScaledImage(profiledImage,width,height,fast);
+        BufferedImage scaled = getScaledImage(profiledImage,width,height,scaleFast);
         synchronized (mutex) {
             imageFiles[destIndex] = file;
             originalImages[destIndex] = original;
@@ -1389,7 +1402,7 @@ public class Viewer extends JPanel {
                 if (wheelInMotion.get() || Thread.currentThread().isInterrupted()) return;
                 width = canvas.getWidth();
                 height = canvas.getHeight();
-                scaledLoadedImages[i] = getScaledImage(loadedImages[i].profiledImage,width,height,false);
+                scaledLoadedImages[i] = getScaledImage(loadedImages[i].profiledImage,width,height,!bestQualityScaling);
                 if (i == index) {
                     applyImage(loadedFiles[i],k,loadedImages[i].originalImage,loadedImages[i].profiledImage,
                             scaledLoadedImages[i],loadedImages[i].data,false,true,false);
@@ -1404,7 +1417,7 @@ public class Viewer extends JPanel {
                 if (wheelInMotion.get() || Thread.currentThread().isInterrupted()) return;
                 width = canvas.getWidth();
                 height = canvas.getHeight();
-                scaledLoadedImages[i] = getScaledImage(loadedImages[i].profiledImage,width,height,false);
+                scaledLoadedImages[i] = getScaledImage(loadedImages[i].profiledImage,width,height,!bestQualityScaling);
                 if (i == index) {
                     applyImage(loadedFiles[i],idx,loadedImages[i].originalImage,loadedImages[i].profiledImage,
                             scaledLoadedImages[i],loadedImages[i].data,false,true,false);
@@ -1500,7 +1513,8 @@ public class Viewer extends JPanel {
                         if (wheelInMotion.get() || Thread.currentThread().isInterrupted()) return;
                         int width = canvas.getWidth();
                         int height = canvas.getHeight();
-                        scaledLoadedImages[k] = getScaledImage(loadedImages[k].profiledImage,width,height,false);
+                        scaledLoadedImages[k] = getScaledImage(loadedImages[k].profiledImage,width,height,
+                                !bestQualityScaling);
                         if (k == index && loaded.get()) {
                             imageShown[0] = true;
                             applyImage(loadedFiles[index],a,loadedImages[index].originalImage,
@@ -1526,7 +1540,8 @@ public class Viewer extends JPanel {
                         if (wheelInMotion.get() || Thread.currentThread().isInterrupted()) return;
                         int width = canvas.getWidth();
                         int height = canvas.getHeight();
-                        scaledLoadedImages[k] = getScaledImage(loadedImages[k].profiledImage,width,height,false);
+                        scaledLoadedImages[k] = getScaledImage(loadedImages[k].profiledImage,width,height,
+                                !bestQualityScaling);
                         if (k == index && loaded.get()) {
                             imageShown[0] = true;
                             applyImage(loadedFiles[index],idx,loadedImages[index].originalImage,
@@ -1633,7 +1648,7 @@ public class Viewer extends JPanel {
             exifData = exif[index];
             fIndex = fileIndex;
         }
-        final BufferedImage scaledImage = getScaledImage(profiledImage,width,height,false);
+        final BufferedImage scaledImage = getScaledImage(profiledImage,width,height,!bestQualityScaling);
         synchronized (mutex) {
             if (wheelInMotion.get() || Thread.currentThread().isInterrupted()) return;
             scaledImages[index] = scaledImage;
@@ -1647,7 +1662,7 @@ public class Viewer extends JPanel {
                 image = images[i];
             }
             if (image == null) continue;
-            image = getScaledImage(image,width,height,false);
+            image = getScaledImage(image,width,height,!bestQualityScaling);
             synchronized (mutex) {
                 if (wheelInMotion.get() || Thread.currentThread().isInterrupted()) return;
                 scaledImages[i] = image;
@@ -1679,7 +1694,7 @@ public class Viewer extends JPanel {
             exifData = exif[index];
         }
         getMTImageLoader().execute(() -> {
-            final BufferedImage im = getScaledImage(profiledImage,width,height,false);
+            final BufferedImage im = getScaledImage(profiledImage,width,height,!bestQualityScaling);
             synchronized (mutex) {
                 if (wheelInMotion.get() || Thread.currentThread().isInterrupted()) return;
                 scaledImages[index] = im;
@@ -1696,7 +1711,7 @@ public class Viewer extends JPanel {
                     scaledImage = images[k];
                 }
                 if (scaledImage == null) return;
-                scaledImage = getScaledImage(scaledImage,width,height,false);
+                scaledImage = getScaledImage(scaledImage,width,height,!bestQualityScaling);
                 synchronized (mutex) {
                     if (wheelInMotion.get() || Thread.currentThread().isInterrupted()) return;
                     scaledImages[k] = scaledImage;
@@ -1751,7 +1766,7 @@ public class Viewer extends JPanel {
             }
             final EXIFImage loadedImage = loadImage(file,false);
             if (wheelInMotion.get() || Thread.currentThread().isInterrupted()) return;
-            final BufferedImage scaledImage = getScaledImage(loadedImage.profiledImage,width,height,false);
+            final BufferedImage scaledImage = getScaledImage(loadedImage.profiledImage,width,height,!bestQualityScaling);
             int i;
             synchronized (mutex) {
                 if (wheelInMotion.get() || Thread.currentThread().isInterrupted()) return;
@@ -1785,7 +1800,7 @@ public class Viewer extends JPanel {
                         if (wheelInMotion.get() || Thread.currentThread().isInterrupted()) return;
                         loadedImages[k] = loadImage(fis[k],false);
                         if (wheelInMotion.get() || Thread.currentThread().isInterrupted()) return;
-                        scaledLoadedImages[k] = getScaledImage(loadedImages[k].profiledImage,width,height,false);
+                        scaledLoadedImages[k] = getScaledImage(loadedImages[k].profiledImage,width,height,!bestQualityScaling);
                         synchronized (c) {
                             c[0]++;
                             c.notifyAll();
@@ -1804,7 +1819,7 @@ public class Viewer extends JPanel {
                         if (wheelInMotion.get() || Thread.currentThread().isInterrupted()) return;
                         loadedImages[k] = loadImage(fis[k],false);
                         if (wheelInMotion.get() || Thread.currentThread().isInterrupted()) return;
-                        scaledLoadedImages[k] = getScaledImage(loadedImages[k].profiledImage,width,height,false);
+                        scaledLoadedImages[k] = getScaledImage(loadedImages[k].profiledImage,width,height,!bestQualityScaling);
                         synchronized (c) {
                             c[0]++;
                             c.notifyAll();
@@ -1858,7 +1873,7 @@ public class Viewer extends JPanel {
         }
         final EXIFImage loadedImage = loadImage(file,false);
         if (wheelInMotion.get() || Thread.currentThread().isInterrupted()) return;
-        final BufferedImage scaledImage = getScaledImage(loadedImage.profiledImage,width,height,false);
+        final BufferedImage scaledImage = getScaledImage(loadedImage.profiledImage,width,height,!bestQualityScaling);
         synchronized (mutex) {
             if (wheelInMotion.get() || Thread.currentThread().isInterrupted()) return;
             originalImages[index] = loadedImage.originalImage;
@@ -1889,7 +1904,7 @@ public class Viewer extends JPanel {
                 imm = loadImage(fis[i],false);
                 loadedImages[i] = imm;
                 if (wheelInMotion.get() || Thread.currentThread().isInterrupted()) return;
-                scaledLoadedImages[i] = getScaledImage(loadedImages[i].profiledImage,width,height,false);
+                scaledLoadedImages[i] = getScaledImage(loadedImages[i].profiledImage,width,height,!bestQualityScaling);
             }
         } else {
             for (int i = 0; i < BUFFER_SIZE && i < numFiles; i++) {
@@ -1899,7 +1914,7 @@ public class Viewer extends JPanel {
                 imm = loadImage(fis[i],false);
                 loadedImages[i] = imm;
                 if (wheelInMotion.get() || Thread.currentThread().isInterrupted()) return;
-                scaledLoadedImages[i] = getScaledImage(loadedImages[i].profiledImage,width,height,false);
+                scaledLoadedImages[i] = getScaledImage(loadedImages[i].profiledImage,width,height,!bestQualityScaling);
             }
         }
         synchronized (mutex) {

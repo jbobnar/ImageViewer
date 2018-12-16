@@ -34,6 +34,7 @@ public class Settings implements Serializable {
     private static final String USE_MULTIPLE_CORES = "useMultipleCores";
     private static final String COLOR_MANAGE = "colorManage";
     private static final String SCALE_TO_FIT = "scaleSmallImagesToFit";
+    private static final String SCALE_BEST_QUALITY = "scaleBestQuality";
     private static final String ROTATE_IMAGE = "rotateImage";
     private static final String CYCLE_WHEN_AT_END = "cycleWhenAtEnd";
     private static final String PLAY_SOUND_ON_CYCLE = "playSoundOnCycle";
@@ -89,6 +90,7 @@ public class Settings implements Serializable {
     public boolean useMultipleCores = true;
     public boolean colorManage = true;
     public boolean scaleToFit = true;
+    public boolean scaleBestQuality = true;
     public boolean rotateImage = true;
     public boolean cycleWhenAtEnd = false;
     public boolean playSoundOnCycle = false;
@@ -149,6 +151,7 @@ public class Settings implements Serializable {
         useMultipleCores = Boolean.parseBoolean(properties.getProperty(USE_MULTIPLE_CORES,"true"));
         colorManage = Boolean.parseBoolean(properties.getProperty(COLOR_MANAGE,"true"));
         scaleToFit = Boolean.parseBoolean(properties.getProperty(SCALE_TO_FIT,"true"));
+        scaleBestQuality = Boolean.parseBoolean(properties.getProperty(SCALE_BEST_QUALITY,"true"));
         rotateImage = Boolean.parseBoolean(properties.getProperty(ROTATE_IMAGE,"true"));
         cycleWhenAtEnd = Boolean.parseBoolean(properties.getProperty(CYCLE_WHEN_AT_END,"false"));
         playSoundOnCycle = Boolean.parseBoolean(properties.getProperty(PLAY_SOUND_ON_CYCLE,"true"));
@@ -317,6 +320,7 @@ public class Settings implements Serializable {
         properties.put(USE_MULTIPLE_CORES,String.valueOf(useMultipleCores));
         properties.put(COLOR_MANAGE,String.valueOf(colorManage));
         properties.put(SCALE_TO_FIT,String.valueOf(scaleToFit));
+        properties.put(SCALE_BEST_QUALITY,String.valueOf(scaleBestQuality));
         properties.put(ROTATE_IMAGE,String.valueOf(rotateImage));
         properties.put(CYCLE_WHEN_AT_END,String.valueOf(cycleWhenAtEnd));
         properties.put(PLAY_SOUND_ON_CYCLE,String.valueOf(playSoundOnCycle));

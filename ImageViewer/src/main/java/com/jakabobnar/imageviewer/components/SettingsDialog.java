@@ -193,7 +193,7 @@ public class SettingsDialog extends JDialog {
         initialize();
         setModal(true);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-        setSize(800,660);
+        setSize(900,710);
         setLocationRelativeTo(frame);
         setResizable(false);
         registerKeyStroke((JComponent) getContentPane(),KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE,0),e -> cancel());
@@ -695,6 +695,12 @@ public class SettingsDialog extends JDialog {
         String scaleToFitHelp = "Images that are smaller than current window size will be resized to fit the window.";
         scaleToFit.addItemListener(itemListener(selected -> settings.scaleToFit = selected));
 
+        scaleBestQuality = new JCheckBox("Prefer quality over speed when scaling (for presentation only)");
+        String scaleBestQualityHelp = "When scaling images use either best quality or fastest algorithm. Fastest "
+                + "algorithm might produce images that have very sharp edges, particularly when scaling down. Best "
+                + "quality algorithm smooths the image using interpolation.";
+        scaleBestQuality.addItemListener(itemListener(selected -> settings.scaleBestQuality = selected));
+
         rotateImage = new JCheckBox("Rotate images according to information stored in image EXIF");
         rotateImage.addItemListener(itemListener(selected -> settings.rotateImage = selected));
 
@@ -726,6 +732,11 @@ public class SettingsDialog extends JDialog {
         contentPanel.add(new HelpArea(waitForImagesToLoadHelp),gbc(0,++y,2,1,1,0,WEST,HORIZONTAL,0,HELP_OFFSET,10,15));
         contentPanel.add(preferQualityOverSpeed,gbc(0,++y,2,1,1,0,WEST,NONE,0,0,2,0));
         contentPanel.add(new HelpArea(preferQualityOverSpeedHelp),gbc(0,++y,2,1,1,0,WEST,HORIZONTAL,0,HELP_OFFSET,10,15));
+        contentPanel.add(scaleToFit,gbc(0,++y,2,1,1,0,WEST,NONE,0,0,2,0));
+        contentPanel.add(new HelpArea(scaleToFitHelp),gbc(0,++y,2,1,1,0,WEST,HORIZONTAL,0,HELP_OFFSET,10,15));
+        contentPanel.add(scaleBestQuality,gbc(0,++y,2,1,1,0,WEST,NONE,0,0,2,0));
+        contentPanel.add(new HelpArea(scaleBestQualityHelp),gbc(0,++y,2,1,1,0,WEST,HORIZONTAL,0,HELP_OFFSET,10,15));
+        contentPanel.add(rotateImage,gbc(0,++y,2,1,1,0,WEST,NONE,0,0,10,0));
         contentPanel.add(colorManage,gbc(0,++y,2,1,1,0,WEST,NONE,0,0,2,0));
         contentPanel.add(new HelpArea(colorManageHelp),gbc(0,++y,2,1,1,0,WEST,HORIZONTAL,0,HELP_OFFSET,10,15));
         contentPanel.add(displayColorManage,gbc(0,++y,2,1,1,0,WEST,NONE,0,15,2,0));
@@ -733,9 +744,6 @@ public class SettingsDialog extends JDialog {
         contentPanel.add(systemProfile,gbc(1,y,1,1,1,0,WEST,NONE,0,2,2,5));
         contentPanel.add(customProfile,gbc(0,++y,1,1,0,0,WEST,NONE,0,15,10,5));
         contentPanel.add(customProfileSelector,gbc(1,y,1,1,1,0,WEST,HORIZONTAL,0,0,10,10));
-        contentPanel.add(scaleToFit,gbc(0,++y,2,1,1,0,WEST,NONE,0,0,2,0));
-        contentPanel.add(new HelpArea(scaleToFitHelp),gbc(0,++y,2,1,1,0,WEST,HORIZONTAL,0,HELP_OFFSET,10,15));
-        contentPanel.add(rotateImage,gbc(0,++y,2,1,1,0,WEST,NONE,0,0,10,0));
         contentPanel.add(histogram,gbc(0,++y,2,1,1,0,WEST,NONE,0,0,5,0));
         contentPanel.add(histoShowChannels,gbc(0,++y,2,1,1,0,WEST,NONE,0,15,2,0));
         contentPanel.add(histoShowRGB,gbc(0,++y,2,1,1,0,WEST,NONE,0,15,2,0));
@@ -818,6 +826,7 @@ public class SettingsDialog extends JDialog {
         customProfile.setEnabled(newSettings.useDisplayColorProfile && newSettings.colorManage);
         customProfileSelector.setEnabled(colorManageAndDisplayProfile && !newSettings.systemColorProfile);
         scaleToFit.setSelected(newSettings.scaleToFit);
+        scaleBestQuality.setSelected(newSettings.scaleBestQuality);
         rotateImage.setSelected(newSettings.rotateImage);
         histoShowChannels.setSelected(newSettings.showChannels);
         histoShowRGB.setSelected(newSettings.showRGB);
@@ -867,6 +876,7 @@ public class SettingsDialog extends JDialog {
     private JRadioButton customProfile;
     private JComboBox<File> customProfileSelector;
     private JCheckBox scaleToFit;
+    private JCheckBox scaleBestQuality;
     private JCheckBox rotateImage;
     private JCheckBox histoShowChannels;
     private JCheckBox histoShowRGB;
