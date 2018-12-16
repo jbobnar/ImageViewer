@@ -51,7 +51,7 @@
   </build>
   <properties>
   	<version>2.0.0</version>
-    <twelvemonkeys.version>3.4.1</twelvemonkeys.version>
+    <twelvemonkeys.version>3.5.1</twelvemonkeys.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
   </properties>

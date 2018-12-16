@@ -140,7 +140,7 @@ public class AboutDialog extends JDialog {
         contentPanel.add(panel,gbc(0,0,1,1,1,1,NORTH,BOTH,10,10,5,10));
         JButton closeButton = new JButton("Close");
         closeButton.addActionListener(e -> dispose());
-        contentPanel.add(closeButton,gbc(0,1,1,1,1,0,EAST,NONE,0,5,5,5));
+        contentPanel.add(closeButton,gbc(0,1,1,1,1,0,EAST,NONE,0,10,12,12));
         setContentPane(contentPanel);
     }
 }

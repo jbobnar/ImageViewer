@@ -44,7 +44,7 @@ public class HelpDialog extends JDialog {
         initialize();
         setModal(true);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-        setSize(550,470);
+        setSize(550,475);
         setLocationRelativeTo(parent);
         setResizable(false);
         registerKeyStroke((JComponent) getContentPane(),KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE,0),e -> dispose());
@@ -119,7 +119,7 @@ public class HelpDialog extends JDialog {
 
         JPanel contentPanel = new JPanel(new GridBagLayout());
         contentPanel.add(panel,gbc(0,0,1,1,1,1,NORTH,BOTH,10,10,5,10));
-        contentPanel.add(closeButton,gbc(0,1,1,1,1,0,EAST,NONE,0,5,5,5));
+        contentPanel.add(closeButton,gbc(0,1,1,1,1,0,EAST,NONE,0,10,12,12));
         setContentPane(contentPanel);
     }
 }

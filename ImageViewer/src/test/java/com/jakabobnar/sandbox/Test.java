@@ -28,7 +28,7 @@ public class Test {
         ConvertCmd convert = new ConvertCmd();
         Stream2BufferedImage s2b = new Stream2BufferedImage();
         convert.setOutputConsumer(s2b);
-        String[] images = {"IMG_5165.CR2"};
+        String[] images = {"f:/temp/IMG_3058.jpg"};
         // run command and extract BufferedImage from OutputConsumer
         convert.run(op,(Object[]) images);
         BufferedImage img = s2b.getImage();
