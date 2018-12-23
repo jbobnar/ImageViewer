@@ -893,7 +893,8 @@ public class Viewer extends JPanel {
                 File[] ff = folder.listFiles();
                 if (ff != null) {
                     final Comparator<File> comparator = sorting.getComparator();
-                    this.files = Arrays.asList(ff).stream().filter(f -> {
+                    List<File> orgList = Arrays.asList(ff);
+                    this.files = orgList.stream().filter(f -> {
                         if (f == null) return false;
                         try {
                             return Files.probeContentType(f.toPath()).substring(0,5).equalsIgnoreCase("image");
@@ -902,6 +903,26 @@ public class Viewer extends JPanel {
                         } catch (NullPointerException e) {
                             return f.getName().toLowerCase(Locale.UK).endsWith(".psd");
                         }
+                    }).filter(f -> {
+                        //if there is a jpeg file with the same name only show the jpeg
+                        //this file is probably a raw file
+                        String fileName = f.getName();
+                        if (fileName.toLowerCase().endsWith("jpg") || fileName.toLowerCase().endsWith("jpeg")) {
+                            return true;
+                        }
+                        int dotIndex = fileName.lastIndexOf('.');
+                        if (dotIndex > 0) {
+                            fileName = fileName.substring(0,dotIndex+1);
+                        }
+                        File fileToFind = new File(folder, fileName + "jpg");
+                        if (fileToFind.exists()) {
+                            return false;
+                        }
+                        fileToFind = new File(folder, fileName + "jpeg");
+                        if (fileToFind.exists()) {
+                            return false;
+                        }
+                        return true;
                     }).sorted(comparator).toArray(File[]::new);
                 } else {
                     this.files = new File[0];

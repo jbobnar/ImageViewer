@@ -127,7 +127,7 @@ public class AboutDialog extends JDialog {
         Font font = new JLabel().getFont();
         StyleConstants.setFontFamily(style,font.getFamily());
         StyleConstants.setFontSize(style,font.getSize());
-        String text = "This software is free for personnal, non-profit, and educational use. "
+        String text = "This software is free for personal, non-profit, and educational use. "
                 + "If you wish to use it in commercial context, please contact the author.";
         textArea.setParagraphAttributes(style,true);
         try {
