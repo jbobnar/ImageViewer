@@ -117,7 +117,7 @@ public final class TransitionsMap extends HashMap<String, Transition> {
         list.add(new TransitionWrapper("Halftone",new HalftoneTransition2D(IN)));
         list.add(new TransitionWrapper("Kaleidoscope",new KaleidoscopeTransition2D()));
         list.add(new TransitionWrapper("Levitate",new LevitateTransition2D()));
-        list.add(new TransitionWrapper("Mean Shuffle",new MeshShuffleTransition2D()));
+        list.add(new TransitionWrapper("Mesh Shuffle",new MeshShuffleTransition2D()));
         list.add(new TransitionWrapper("Microscope",new MicroscopeTransition2D()));
         list.add(new TransitionWrapper("Mirage",new MirageTransition2D()));
         list.add(new TransitionWrapper("Motion Blend",true,new MotionBlendTransition2D()));
