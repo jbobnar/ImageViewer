@@ -50,7 +50,7 @@
     </plugins>
   </build>
   <properties>
-  	<version>2.0.0</version>
+  	<version>3.0.0</version>
     <twelvemonkeys.version>3.5.1</twelvemonkeys.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -122,6 +122,16 @@
       <groupId>com.bric</groupId>
       <artifactId>image-transitions</artifactId>
       <version>1.0.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-controls</artifactId>
+      <version>11.0.2</version>
+    </dependency>
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-swing</artifactId>
+      <version>11.0.2</version>
     </dependency>
     <dependency>
       <groupId>org.im4java</groupId>
