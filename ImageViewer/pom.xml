@@ -50,7 +50,7 @@
     </plugins>
   </build>
   <properties>
-  	<version>3.0.0</version>
+  	<version>3.0.1</version>
     <twelvemonkeys.version>3.5.1</twelvemonkeys.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -70,6 +70,10 @@
     Twelvemonkeys dng plugin does not correctly decode colors, the tidalware takes over in that case.
     On the other hand tidalware incorrectly interprets colors in cr2 and nef formats. Therefore we
     need the above 2 plugins.
+    The TIFF Image Reader SPI has to be properly configured so that the order of plugins is such that 
+    TIFF does not take over decoding of the CR2 images. TIFF claims it can decode but in fact cannot,
+    nevertheless, the ImageIO uses the first plugin that claims it can decode. Moving the CR2 plugin
+    before the TIFF sovles this issue.
     -->
     <!--dependency>
       <groupId>com.twelvemonkeys.imageio</groupId>

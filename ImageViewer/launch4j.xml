@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch4jConfig>
+  <dontWrapJar>false</dontWrapJar>
+  <headerType>gui</headerType>
+  <lib>w32api/libmingw32.a</lib>
+  <lib>w32api/libgcc.a</lib>
+  <lib>w32api/libmsvcrt.a</lib>
+  <lib>w32api/libkernel32.a</lib>
+  <lib>w32api/libuser32.a</lib>
+  <lib>w32api/libadvapi32.a</lib>
+  <lib>w32api/libshell32.a</lib>
+  <jar>F:\temp\ImageViewer-2.0.0\ImageViewer-3.0.0.jar</jar>
+  <outfile>ImageViewer.exe</outfile>
+  <errTitle></errTitle>
+  <cmdLine></cmdLine>
+  <chdir>.</chdir>
+  <priority>high</priority>
+  <downloadUrl>http://java.com/download</downloadUrl>
+  <supportUrl></supportUrl>
+  <stayAlive>false</stayAlive>
+  <restartOnCrash>true</restartOnCrash>
+  <manifest></manifest>
+  <icon>F:\temp\ImageViewer-2.0.0\viewer.ico</icon>
+  <classPath>
+    <mainClass>com.jakabobnar.imageviewer.ViewerFrame</mainClass>
+    <cp>common-image-3.4.1.jar</cp>
+    <cp>common.io-3.4.1.jar</cp>
+    <cp>common-lang-3.4.1.jar</cp>
+    <cp>imageio-bmp-3.4.1.jar</cp>
+    <cp>imageio-core-3.4.1.jar</cp>
+    <cp>imageio-cr2-3.4.1.jar</cp>
+    <cp>imageio-jpeg-3.4.1.jar</cp>
+    <cp>imageio-metadata-3.4.1.jar</cp>
+    <cp>imageio-nef-3.4.1.jar</cp>
+    <cp>imageio-psd-3.4.1.jar</cp>
+    <cp>imageio-thumbsdb-3.4.1.jar</cp>
+    <cp>imageio-tiff-3.4.1.jar</cp>
+    <cp>image-transitions-1.0.0.jar</cp>
+    <cp>it.tidalwave.imageio.raw-1.7-ALPHA-2.jar</cp>
+    <cp>metadata-extractor-2.8.1.jar</cp>
+    <cp>tinylaf-1.4.0.jar</cp>
+    <cp>xmpcore-5.1.2.jar</cp>
+    <cp>javafx-base-11.0.2.jar</cp>
+    <cp>javafx-base-11.0.2-win.jar</cp>
+    <cp>javafx-controls-11.0.2.jar</cp>
+    <cp>javafx-controls-11.0.2-win.jar</cp>
+    <cp>javafx-graphics-11.0.2.jar</cp>
+    <cp>javafx-graphics-11.0.2-win.jar</cp>
+    <cp>javafx-swing-11.0.2-win.jar</cp>
+    <cp>javafx-swing-11.0.2.jar</cp>
+  </classPath>
+  <jre>
+    <path>C:\Program Files\Java\jdk-13.0.1</path>
+    <bundledJre64Bit>true</bundledJre64Bit>
+    <bundledJreAsFallback>false</bundledJreAsFallback>
+    <minVersion>1.8.0</minVersion>
+    <maxVersion></maxVersion>
+    <jdkPreference>preferJre</jdkPreference>
+    <runtimeBits>64/32</runtimeBits>
+    <initialHeapSize>256</initialHeapSize>
+    <maxHeapSize>2048</maxHeapSize>
+  </jre>
+  <versionInfo>
+    <fileVersion>3.0.0.0</fileVersion>
+    <txtFileVersion>3.0.0</txtFileVersion>
+    <fileDescription>Image Viewer</fileDescription>
+    <copyright>Jaka Bobnar</copyright>
+    <productVersion>3.0.0.0</productVersion>
+    <txtProductVersion>3.0.0</txtProductVersion>
+    <productName>ImageViewer</productName>
+    <companyName></companyName>
+    <internalName>ImageViewer</internalName>
+    <originalFilename>ImageViewer.exe</originalFilename>
+    <trademarks></trademarks>
+    <language>ENGLISH_UK</language>
+  </versionInfo>
+</launch4jConfig>
