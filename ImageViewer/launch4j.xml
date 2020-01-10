@@ -23,23 +23,23 @@
   <icon>F:\temp\ImageViewer-2.0.0\viewer.ico</icon>
   <classPath>
     <mainClass>com.jakabobnar.imageviewer.ViewerFrame</mainClass>
-    <cp>common-image-3.4.1.jar</cp>
-    <cp>common.io-3.4.1.jar</cp>
-    <cp>common-lang-3.4.1.jar</cp>
-    <cp>imageio-bmp-3.4.1.jar</cp>
-    <cp>imageio-core-3.4.1.jar</cp>
-    <cp>imageio-cr2-3.4.1.jar</cp>
-    <cp>imageio-jpeg-3.4.1.jar</cp>
-    <cp>imageio-metadata-3.4.1.jar</cp>
-    <cp>imageio-nef-3.4.1.jar</cp>
-    <cp>imageio-psd-3.4.1.jar</cp>
-    <cp>imageio-thumbsdb-3.4.1.jar</cp>
-    <cp>imageio-tiff-3.4.1.jar</cp>
+    <cp>common-image-3.5.1.jar</cp>
+    <cp>common.io-3.5.1.jar</cp>
+    <cp>common-lang-3.5.1.jar</cp>
+    <cp>imageio-bmp-3.5.1.jar</cp>
+    <cp>imageio-core-3.5.1.jar</cp>
+    <cp>imageio-cr2-3.5.1.jar</cp>
+    <cp>imageio-jpeg-3.5.1.jar</cp>
+    <cp>imageio-metadata-3.5.1.jar</cp>
+    <cp>imageio-nef-3.5.1.jar</cp>
+    <cp>imageio-psd-3.5.1.jar</cp>
+    <cp>imageio-thumbsdb-3.5.1.jar</cp>
+    <cp>imageio-tiff-3.5.1.jar</cp>
     <cp>image-transitions-1.0.0.jar</cp>
     <cp>it.tidalwave.imageio.raw-1.7-ALPHA-2.jar</cp>
-    <cp>metadata-extractor-2.8.1.jar</cp>
+    <cp>metadata-extractor-2.10.1.jar</cp>
     <cp>tinylaf-1.4.0.jar</cp>
-    <cp>xmpcore-5.1.2.jar</cp>
+    <cp>xmpcore-5.1.3.jar</cp>
     <cp>javafx-base-11.0.2.jar</cp>
     <cp>javafx-base-11.0.2-win.jar</cp>
     <cp>javafx-controls-11.0.2.jar</cp>

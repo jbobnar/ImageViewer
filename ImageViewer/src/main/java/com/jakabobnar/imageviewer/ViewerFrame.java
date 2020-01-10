@@ -85,6 +85,8 @@ public class ViewerFrame extends JFrame {
     private HistogramDisplayer histogramDisplayer;
     private SettingsDialog settingsDialog;
 
+    private static final String MAIN_TITLE = "Image Viewer";
+
     /**
      * Constructs a new frame.
      */
@@ -98,7 +100,7 @@ public class ViewerFrame extends JFrame {
      * @param file the file to open
      */
     public ViewerFrame(final File file) {
-        setTitle("Image Viewer");
+        setTitle(MAIN_TITLE);
         setIconImages(Arrays.asList("i256.png","i128.png","i64.png","i48.png","i32.png","i16.png").stream()
                 .map(s -> new ImageIcon(getClass().getClassLoader().getResource(s)).getImage())
                 .collect(Collectors.toList()));
@@ -461,5 +463,15 @@ public class ViewerFrame extends JFrame {
         registerKeyStroke(comp,getKeyStroke(KeyEvent.VK_ESCAPE,0),e -> System.exit(0));
         registerKeyStroke(comp,getKeyStroke(KeyEvent.VK_F11,0),e -> toggleFullScreen());
         registerKeyStroke(comp,getKeyStroke(KeyEvent.VK_F12,0),e -> toggleToolbarAutoHide());
+    }
+
+    /**
+     * Update the title of the frame by including the path to the given file (usually this is the file that is currently
+     * open).
+     *
+     * @param file the file that is currently open and which path is added to the title of the application frame
+     */
+    void updateTitle(File file) {
+        SwingUtilities.invokeLater(() -> setTitle(MAIN_TITLE + " - " + file.getAbsolutePath()));
     }
 }

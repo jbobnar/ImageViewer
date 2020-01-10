@@ -220,7 +220,7 @@ public final class ImageUtil {
             throws IOException {
         // In multithreaded applications this could interfere with other threads, but we don't care.
         // If another thread triggered loading of image with different management, than whatever the previous thread
-        // is doing is completely irrelevant. That image won't be used anywhere. THe only problem is that previous
+        // is doing is completely irrelevant. That image won't be used anywhere. The only problem is that previous
         // thread needs to do more than needed, but that's life.
         System.setProperty(Constants.READ_EMBEDDED_PROFILE,String.valueOf(colorManage));
         System.setProperty(Constants.DO_COLOR_MANAGEMENT,String.valueOf(displaySpace == null));

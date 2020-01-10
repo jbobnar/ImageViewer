@@ -2070,6 +2070,7 @@ public class Viewer extends JPanel {
             hist = loadedHistogram;
             theOriginalNonProfiledImage = original;
         }
+        viewerFrame.updateTitle(file);
         if (showEXIFData) {
             viewerFrame.getExifDisplayer().setData(exif);
         }
