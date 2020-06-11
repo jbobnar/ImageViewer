@@ -2148,6 +2148,8 @@ public class Viewer extends JPanel {
         }
         BufferedImage bi = new BufferedImage(width,height,BufferedImage.TYPE_INT_RGB);
         Graphics2D g = bi.createGraphics();
+        g.setColor(backgroundColor);
+        g.fillRect(0,0,width,height);
         g.drawImage(source,(width - source.getWidth()) / 2,(height - source.getHeight()) / 2,null);
         g.dispose();
         return bi;
