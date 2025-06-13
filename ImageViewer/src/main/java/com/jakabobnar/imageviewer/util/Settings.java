@@ -163,7 +163,7 @@ public class Settings implements Serializable {
         try {
             zoomFactor = Float.parseFloat(properties.getProperty(ZOOM_FACTOR,"3.0"));
         } catch (NumberFormatException e) {
-            stepSize = 5;
+            zoomFactor = 5;
         }
 
         reverseButtons = Boolean.parseBoolean(properties.getProperty(REVERSE_BUTTONS,"false"));
